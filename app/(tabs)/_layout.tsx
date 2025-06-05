@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Sun, Heart, Calendar, Rewind } from 'lucide-react-native';
+import { Home, Sun, Heart, Calendar } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -56,7 +56,7 @@ export default function TabLayout() {
         options={{
           title: 'Retrogrades',
           tabBarIcon: ({ color, size }) => (
-            <Rewind size={size} color={color} />
+            <Calendar size={size} color={color} />
           ),
         }}
       />
