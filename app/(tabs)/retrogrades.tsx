@@ -4,7 +4,7 @@ import { Header } from '@/components/shared/Header';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import type { Planet, RetrogradeDetail } from '@/lib/supabase';
-import { Calendar, Clock, MapPin, AlertTriangle } from 'lucide-react-native';
+import { Calendar, Clock, MapPin, TriangleAlert as AlertTriangle } from 'lucide-react-native';
 
 export default function RetrogradePlanetsScreen() {
   const { theme } = useTheme();
