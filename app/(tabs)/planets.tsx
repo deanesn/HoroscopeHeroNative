@@ -5,6 +5,7 @@ import { useTheme, colors } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import type { Planet, RetrogradeDetail } from '@/lib/supabase';
 import { Calendar, Clock, MapPin, TriangleAlert as AlertTriangle } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PlanetsScreen() {
   const { theme } = useTheme();
@@ -77,53 +78,58 @@ export default function PlanetsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Header 
-        title="Planets" 
-        subtitle="Explore planetary movements and retrogrades"
-      />
-      
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-        contentContainerStyle={styles.filterContent}
+      <LinearGradient
+        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
       >
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            { backgroundColor: !selectedPlanet ? themeColors.primary : themeColors.surface },
-          ]}
-          onPress={() => setSelectedPlanet(null)}
+        <Header 
+          title="Planets" 
+          subtitle="Explore planetary movements and retrogrades"
+        />
+        
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterContainer}
+          contentContainerStyle={styles.filterContent}
         >
-          <Text style={[
-            styles.filterButtonText,
-            { color: !selectedPlanet ? '#FFFFFF' : themeColors.textSecondary },
-          ]}>All Planets</Text>
-        </TouchableOpacity>
-        {planets.map((planet) => (
           <TouchableOpacity
-            key={planet.id}
             style={[
               styles.filterButton,
               { 
-                backgroundColor: selectedPlanet === planet.name 
-                  ? themeColors.primary 
-                  : themeColors.surface 
+                backgroundColor: !selectedPlanet 
+                  ? 'rgba(255, 255, 255, 0.2)' 
+                  : 'rgba(255, 255, 255, 0.1)',
               },
             ]}
-            onPress={() => setSelectedPlanet(planet.name)}
+            onPress={() => setSelectedPlanet(null)}
           >
-            <Text style={[
-              styles.filterButtonText,
-              { 
-                color: selectedPlanet === planet.name 
-                  ? '#FFFFFF' 
-                  : themeColors.textSecondary 
-              },
-            ]}>{planet.name}</Text>
+            <Text style={[styles.filterButtonText, { color: '#FFFFFF' }]}>
+              All Planets
+            </Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+          {planets.map((planet) => (
+            <TouchableOpacity
+              key={planet.id}
+              style={[
+                styles.filterButton,
+                { 
+                  backgroundColor: selectedPlanet === planet.name 
+                    ? 'rgba(255, 255, 255, 0.2)' 
+                    : 'rgba(255, 255, 255, 0.1)',
+                },
+              ]}
+              onPress={() => setSelectedPlanet(planet.name)}
+            >
+              <Text style={[styles.filterButtonText, { color: '#FFFFFF' }]}>
+                {planet.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </LinearGradient>
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -140,24 +146,33 @@ export default function PlanetsScreen() {
                   styles.retrogradeCard,
                   { 
                     backgroundColor: themeColors.surface,
-                    borderColor: isRetrograde ? themeColors.primary : themeColors.border,
                   },
                 ]}
               >
                 {isRetrograde && (
-                  <View style={[styles.activeTag, { backgroundColor: themeColors.primary }]}>
-                    <Text style={styles.activeTagText}>Currently Retrograde</Text>
-                  </View>
+                  <LinearGradient
+                    colors={[themeColors.gradientStart, themeColors.gradientEnd]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.activeIndicator}
+                  />
                 )}
                 
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.planetName, { color: themeColors.text }]}>
-                    {retrograde.planet_name}
-                  </Text>
-                  {retrograde.duration_days && (
-                    <Text style={[styles.duration, { color: themeColors.textSecondary }]}>
-                      {retrograde.duration_days} days
+                  <View>
+                    <Text style={[styles.planetName, { color: themeColors.text }]}>
+                      {retrograde.planet_name}
                     </Text>
+                    {retrograde.duration_days && (
+                      <Text style={[styles.duration, { color: themeColors.textSecondary }]}>
+                        {retrograde.duration_days} days
+                      </Text>
+                    )}
+                  </View>
+                  {isRetrograde && (
+                    <View style={[styles.activeTag, { backgroundColor: themeColors.primary }]}>
+                      <Text style={styles.activeTagText}>Active</Text>
+                    </View>
                   )}
                 </View>
 
@@ -165,7 +180,7 @@ export default function PlanetsScreen() {
                   <View style={styles.dateRow}>
                     <Calendar size={16} color={themeColors.primary} />
                     <Text style={[styles.dateLabel, { color: themeColors.textSecondary }]}>
-                      Retrograde Period:
+                      Retrograde Period
                     </Text>
                   </View>
                   <Text style={[styles.dateText, { color: themeColors.text }]}>
@@ -244,14 +259,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    paddingBottom: 16,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   filterContainer: {
+    marginTop: 8,
     paddingHorizontal: 16,
-    marginBottom: 16,
   },
   filterContent: {
     paddingVertical: 8,
@@ -273,14 +291,43 @@ const styles = StyleSheet.create({
   },
   retrogradeCard: {
     borderRadius: 16,
-    padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
+    padding: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  planetName: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    marginBottom: 4,
+  },
+  duration: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
   },
   activeTag: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -288,20 +335,6 @@ const styles = StyleSheet.create({
   activeTagText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  planetName: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-  },
-  duration: {
-    fontSize: 14,
     fontFamily: 'Inter-Medium',
   },
   dateSection: {
