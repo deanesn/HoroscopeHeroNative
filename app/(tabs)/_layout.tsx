@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Sun, Heart, Calendar } from 'lucide-react-native';
+import { Home, Sun, Heart, Globe } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -52,11 +52,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="retrogrades"
+        name="planets"
         options={{
-          title: 'Retrogrades',
+          title: 'Planets',
           tabBarIcon: ({ color, size }) => (
-            <Calendar size={size} color={color} />
+            <Globe size={size} color={color} />
           ),
         }}
       />
