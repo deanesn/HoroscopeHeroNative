@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Sun, Heart } from 'lucide-react-native';
+import { Home, Sun, Heart, Rewind } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,8 +15,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: themeColors.primary,
         tabBarInactiveTintColor: themeColors.textSecondary,
         tabBarStyle: {
-          paddingBottom: insets.bottom + 12, // Always add extra padding
-          height: 64 + insets.bottom + 12,   // Adjust height accordingly
+          paddingBottom: insets.bottom + 12,
+          height: 64 + insets.bottom + 12,
           paddingBottom: Math.max(8, insets.bottom),
           paddingTop: 8,
           backgroundColor: themeColors.surface,
@@ -48,6 +48,15 @@ export default function TabLayout() {
           title: 'Zodiac',
           tabBarIcon: ({ color, size }) => (
             <Sun size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="retrogrades"
+        options={{
+          title: 'Retrogrades',
+          tabBarIcon: ({ color, size }) => (
+            <Rewind size={size} color={color} />
           ),
         }}
       />

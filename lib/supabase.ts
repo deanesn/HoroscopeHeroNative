@@ -4,11 +4,9 @@ import Constants from 'expo-constants';
 import 'react-native-url-polyfill/auto';
 import { Platform } from 'react-native';
 
-// Get the Supabase URL and key from app.json instead of environment variables
 const supabaseUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-// Use different storage mechanisms for web and native platforms
 const storage = Platform.OS === 'web' 
   ? {
       getItem: (key: string) => {
@@ -41,7 +39,6 @@ const storage = Platform.OS === 'web'
     }
   : AsyncStorage;
 
-// Create the Supabase client with error handling
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage,
@@ -56,11 +53,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Add error handling for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   try {
     if (event === 'SIGNED_OUT') {
-      // Clear any cached data if needed
       storage.removeItem('supabase.auth.token');
     }
   } catch (error) {
@@ -68,7 +63,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 });
 
-// Database types for your horoscope app
 export interface Profile {
   id: string;
   first_name: string | null;
@@ -85,6 +79,40 @@ export interface Profile {
   birth_longitude: number | null;
   birth_timezone: string | null;
   is_onboarding_complete: boolean | null;
+}
+
+export interface Planet {
+  id: number;
+  name: string;
+  orbit_period_days: number | null;
+  avg_retrograde_duration_days: number | null;
+  retrograde_frequency: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface RetrogradeDetail {
+  id: string;
+  planet_name: string;
+  retrograde_start_date: string;
+  retrograde_start_degree: number;
+  start_degree_sign: string | null;
+  start_zodiac_sign: string | null;
+  station_retrograde_date: string | null;
+  station_retrograde_degree: number | null;
+  station_direct_date: string | null;
+  station_direct_degree: number | null;
+  retrograde_end_date: string;
+  retrograde_end_degree: number;
+  end_degree_sign: string | null;
+  end_zodiac_sign: string | null;
+  duration_days: number | null;
+  pre_shadow_start_date: string | null;
+  post_shadow_end_date: string | null;
+  apparent_speed_at_start: number | null;
+  apparent_speed_at_end: number | null;
+  notes: string | null;
+  reference_source: string | null;
 }
 
 export interface DailyHoroscope {
