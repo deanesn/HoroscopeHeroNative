@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
@@ -52,8 +53,12 @@ export const AuthScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.card, { backgroundColor: themeColors.surface }]}>
-          <View style={[styles.logoContainer, { backgroundColor: themeColors.primary }]}>
-            {/* Star icon removed */}
+          <View style={styles.logoContainer}>
+            <Image 
+              source={require('@/assets/images/logo-small.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
           
           <Text style={[styles.title, { color: themeColors.text }]}>HoroscopeHero</Text>
@@ -149,13 +154,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   logoContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    alignSelf: 'center',
+  },
+  logo: {
+    width: 80,
+    height: 80,
   },
   title: {
     fontSize: 24,
