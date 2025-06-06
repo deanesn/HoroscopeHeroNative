@@ -160,7 +160,7 @@ export const HomeScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <Header 
-        title="Home"
+        title="HoroscopeHero"
         subtitle="Your daily cosmic insights"
         profileInitial={profile?.first_name?.[0]?.toUpperCase()}
       />
