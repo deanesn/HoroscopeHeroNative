@@ -89,46 +89,53 @@ export default function PlanetsScreen() {
           subtitle="Explore planetary movements and retrogrades"
         />
         
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterContainer}
-          contentContainerStyle={styles.filterContent}
-        >
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              { 
-                backgroundColor: !selectedPlanet 
-                  ? 'rgba(255, 255, 255, 0.2)' 
-                  : 'rgba(255, 255, 255, 0.1)',
-              },
-            ]}
-            onPress={() => setSelectedPlanet(null)}
+        <View style={[styles.filterButtonsContainer, { backgroundColor: themeColors.border }]}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterContent}
           >
-            <Text style={[styles.filterButtonText, { color: '#FFFFFF' }]}>
-              All Planets
-            </Text>
-          </TouchableOpacity>
-          {planets.map((planet) => (
             <TouchableOpacity
-              key={planet.id}
               style={[
                 styles.filterButton,
-                { 
-                  backgroundColor: selectedPlanet === planet.name 
-                    ? 'rgba(255, 255, 255, 0.2)' 
-                    : 'rgba(255, 255, 255, 0.1)',
-                },
+                !selectedPlanet && [
+                  styles.selectedFilterButton,
+                  { backgroundColor: themeColors.surface }
+                ],
+                !selectedPlanet || { backgroundColor: 'transparent' }
               ]}
-              onPress={() => setSelectedPlanet(planet.name)}
+              onPress={() => setSelectedPlanet(null)}
             >
-              <Text style={[styles.filterButtonText, { color: '#FFFFFF' }]}>
-                {planet.name}
+              <Text style={[
+                styles.filterButtonText, 
+                { color: !selectedPlanet ? themeColors.primary : themeColors.textSecondary }
+              ]}>
+                All Planets
               </Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+            {planets.map((planet) => (
+              <TouchableOpacity
+                key={planet.id}
+                style={[
+                  styles.filterButton,
+                  selectedPlanet === planet.name && [
+                    styles.selectedFilterButton,
+                    { backgroundColor: themeColors.surface }
+                  ],
+                  selectedPlanet === planet.name || { backgroundColor: 'transparent' }
+                ]}
+                onPress={() => setSelectedPlanet(planet.name)}
+              >
+                <Text style={[
+                  styles.filterButtonText, 
+                  { color: selectedPlanet === planet.name ? themeColors.primary : themeColors.textSecondary }
+                ]}>
+                  {planet.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </LinearGradient>
 
       {loading ? (
@@ -267,9 +274,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  filterContainer: {
-    marginTop: 8,
-    paddingHorizontal: 16,
+  filterButtonsContainer: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 16,
+    marginHorizontal: 16,
   },
   filterContent: {
     paddingVertical: 8,
@@ -278,8 +288,18 @@ const styles = StyleSheet.create({
   filterButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 8,
     marginRight: 8,
+  },
+  selectedFilterButton: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   filterButtonText: {
     fontSize: 14,
