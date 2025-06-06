@@ -26,7 +26,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Handle refresh token errors
         if (error) {
+          if (error.message.includes('refresh_token_not_found') || 
+              error.message.includes('Invalid Refresh Token')) {
+            // Clear the invalid session
+            await supabase.auth.signOut();
+            if (mounted) {
+              setSession(null);
+              setUser(null);
+              router.replace('/auth');
+            }
+            return;
+          }
           console.error('Error getting session:', error.message);
           return;
         }
