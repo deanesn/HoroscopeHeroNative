@@ -63,6 +63,47 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 });
 
+// Date utility functions
+export function getUTCDate() {
+  const now = new Date();
+  return new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  ));
+}
+
+export function getUTCYYYYMMDD(date = new Date()) {
+  return date.toISOString().split('T')[0];
+}
+
+export function getUTCWeekRange() {
+  const today = getUTCDate();
+  const dayOfWeek = today.getUTCDay();
+  
+  const weekStart = new Date(today);
+  weekStart.setUTCDate(today.getUTCDate() - dayOfWeek);
+  
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+  
+  return {
+    start: getUTCYYYYMMDD(weekStart),
+    end: getUTCYYYYMMDD(weekEnd)
+  };
+}
+
+export function getUTCMonthRange() {
+  const today = getUTCDate();
+  const monthStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+  const monthEnd = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0));
+  
+  return {
+    start: getUTCYYYYMMDD(monthStart),
+    end: getUTCYYYYMMDD(monthEnd)
+  };
+}
+
 export interface Profile {
   id: string;
   first_name: string | null;
