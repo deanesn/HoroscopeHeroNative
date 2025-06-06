@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Flame as Aries, Mountain as Taurus, Users as Gemini, Moon as Cancer, Sun as Leo, Wheat as Virgo, Scale as Libra, Bug as Scorpio, Target as Sagittarius, Mountain as Capricorn, Waves as Aquarius, Fish as Pisces } from 'lucide-react-native';
+import { getUTCYYYYMMDD, getUTCWeekRange, getUTCMonthRange } from '@/lib/supabase';
 
 type HoroscopeType = 'daily' | 'weekly' | 'monthly';
 
@@ -55,7 +56,7 @@ export const HomeScreen = () => {
     if (!zodiacSign) return null;
     
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getUTCYYYYMMDD();
       let { data, error } = { data: null, error: null };
 
       if (!type || !profile?.is_subscribed) {
@@ -77,32 +78,26 @@ export const HomeScreen = () => {
             break;
           }
           case 'weekly': {
-            const weekStart = new Date();
-            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
+            const { start: weekStart, end: weekEnd } = getUTCWeekRange();
 
             ({ data, error } = await supabase
               .from('weekly_horoscopes')
               .select('content, week_start_date, week_end_date')
               .eq('user_id', user?.id)
-              .gte('week_start_date', weekStart.toISOString().split('T')[0])
-              .lte('week_end_date', weekEnd.toISOString().split('T')[0])
+              .gte('week_start_date', weekStart)
+              .lte('week_end_date', weekEnd)
               .maybeSingle());
             break;
           }
           case 'monthly': {
-            const monthStart = new Date(today.substring(0, 7) + '-01');
-            const nextMonth = new Date(monthStart);
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
-            const monthEnd = new Date(nextMonth.getTime() - 1);
+            const { start: monthStart, end: monthEnd } = getUTCMonthRange();
 
             ({ data, error } = await supabase
               .from('monthly_horoscopes')
               .select('content, month_start_date, month_end_date')
               .eq('user_id', user?.id)
-              .gte('month_start_date', monthStart.toISOString().split('T')[0])
-              .lte('month_end_date', monthEnd.toISOString().split('T')[0])
+              .gte('month_start_date', monthStart)
+              .lte('month_end_date', monthEnd)
               .maybeSingle());
             break;
           }
