@@ -6,6 +6,7 @@ import { Heart, DollarSign, Moon, RefreshCw, Lock, User } from 'lucide-react-nat
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
+import { Header } from '@/components/shared/Header';
 import { Flame as Aries, Mountain as Taurus, Users as Gemini, Moon as Cancer, Sun as Leo, Wheat as Virgo, Scale as Libra, Bug as Scorpio, Target as Sagittarius, Mountain as Capricorn, Waves as Aquarius, Fish as Pisces } from 'lucide-react-native';
 
 type HoroscopeType = 'daily' | 'weekly' | 'monthly';
@@ -156,183 +157,175 @@ export const HomeScreen = () => {
   const formattedDate = currentDate.toLocaleDateString('en-US', dateOptions);
 
   return (
-    <ScrollView 
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-      refreshControl={
-        <RefreshControl 
-          refreshing={refreshing} 
-          onRefresh={onRefresh}
-          tintColor={themeColors.primary}
-        />
-      }
-    >
-      <LinearGradient
-        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <Header 
+        title="Home"
+        subtitle="Your daily cosmic insights"
+        profileInitial={profile?.first_name?.[0]?.toUpperCase()}
+      />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={themeColors.primary}
+          />
+        }
       >
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greeting}>Good day, {profile?.first_name || 'Stargazer'}</Text>
-            <View style={styles.zodiacContainer}>
-              {profile?.zodiac_sign ? 
-                getZodiacIcon(profile.zodiac_sign, 20, '#FFD700')
-                : <Moon color="#FFD700\" size={20} />
-              }
-              <Text style={styles.zodiacText}>{profile?.zodiac_sign || 'Complete your profile'}</Text>
-            </View>
-          </View>
-          <TouchableOpacity 
-            style={[styles.profileButton, { 
-              backgroundColor: theme === 'dark' ? 'rgba(138, 43, 226, 0.2)' : 'rgba(255, 255, 255, 0.2)' 
-            }]}
-            onPress={() => router.push('/profile')}
-          >
-            {profile?.first_name ? (
-              <Text style={styles.profileInitial}>
-                {profile.first_name[0].toUpperCase()}
-              </Text>
-            ) : (
-              <User size={20} color="#FFFFFF" />
-            )}
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.date}>{formattedDate}</Text>
-      </LinearGradient>
-
-      <View style={styles.content}>
-        <View style={[styles.typeSelector, { backgroundColor: themeColors.border }]}>
-          <TouchableOpacity
-            style={[
-              styles.typeButton,
-              selectedType === 'daily' && [styles.selectedType, { backgroundColor: themeColors.surface }]
-            ]}
-            onPress={() => setSelectedType(selectedType === 'daily' ? null : 'daily')}
-          >
-            <View style={styles.typeButtonContent}>
-              <Text style={[
-                styles.typeText,
-                { color: themeColors.textSecondary },
-                selectedType === 'daily' && { color: themeColors.primary }
-              ]}>Daily</Text>
-              {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'daily' ? themeColors.primary : themeColors.textSecondary} />}
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.typeButton,
-              selectedType === 'weekly' && [styles.selectedType, { backgroundColor: themeColors.surface }]
-            ]}
-            onPress={() => setSelectedType(selectedType === 'weekly' ? null : 'weekly')}
-          >
-            <View style={styles.typeButtonContent}>
-              <Text style={[
-                styles.typeText,
-                { color: themeColors.textSecondary },
-                selectedType === 'weekly' && { color: themeColors.primary }
-              ]}>Weekly</Text>
-              {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'weekly' ? themeColors.primary : themeColors.textSecondary} />}
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.typeButton,
-              selectedType === 'monthly' && [styles.selectedType, { backgroundColor: themeColors.surface }]
-            ]}
-            onPress={() => setSelectedType(selectedType === 'monthly' ? null : 'monthly')}
-          >
-            <View style={styles.typeButtonContent}>
-              <Text style={[
-                styles.typeText,
-                { color: themeColors.textSecondary },
-                selectedType === 'monthly' && { color: themeColors.primary }
-              ]}>Monthly</Text>
-              {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'monthly' ? themeColors.primary : themeColors.textSecondary} />}
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.dailyHoroscopeCard, { 
-          backgroundColor: themeColors.surface,
-          borderColor: themeColors.cardBorder
-        }]}>
-          <View style={styles.horoscopeHeader}>
-            <Text style={[styles.cardTitle, { color: themeColors.text }]}>
-              {selectedType ? `Your ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Horoscope` : `${profile?.zodiac_sign || 'Your'} Horoscope`}
+        <View style={[styles.welcomeSection, { backgroundColor: themeColors.surface }]}>
+          <Text style={[styles.greeting, { color: themeColors.text }]}>
+            Good day, {profile?.first_name || 'Stargazer'}
+          </Text>
+          <View style={styles.zodiacContainer}>
+            {profile?.zodiac_sign ? 
+              getZodiacIcon(profile.zodiac_sign, 20, themeColors.primary)
+              : <Moon color={themeColors.primary} size={20} />
+            }
+            <Text style={[styles.zodiacText, { color: themeColors.textSecondary }]}>
+              {profile?.zodiac_sign || 'Complete your profile'}
             </Text>
-            <TouchableOpacity onPress={onRefresh} style={styles.refreshButton}>
-              <RefreshCw size={20} color={themeColors.primary} />
+          </View>
+          <Text style={[styles.date, { color: themeColors.textSecondary }]}>{formattedDate}</Text>
+        </View>
+
+        <View style={styles.content}>
+          <View style={[styles.typeSelector, { backgroundColor: themeColors.border }]}>
+            <TouchableOpacity
+              style={[
+                styles.typeButton,
+                selectedType === 'daily' && [styles.selectedType, { backgroundColor: themeColors.surface }]
+              ]}
+              onPress={() => setSelectedType(selectedType === 'daily' ? null : 'daily')}
+            >
+              <View style={styles.typeButtonContent}>
+                <Text style={[
+                  styles.typeText,
+                  { color: themeColors.textSecondary },
+                  selectedType === 'daily' && { color: themeColors.primary }
+                ]}>Daily</Text>
+                {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'daily' ? themeColors.primary : themeColors.textSecondary} />}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.typeButton,
+                selectedType === 'weekly' && [styles.selectedType, { backgroundColor: themeColors.surface }]
+              ]}
+              onPress={() => setSelectedType(selectedType === 'weekly' ? null : 'weekly')}
+            >
+              <View style={styles.typeButtonContent}>
+                <Text style={[
+                  styles.typeText,
+                  { color: themeColors.textSecondary },
+                  selectedType === 'weekly' && { color: themeColors.primary }
+                ]}>Weekly</Text>
+                {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'weekly' ? themeColors.primary : themeColors.textSecondary} />}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.typeButton,
+                selectedType === 'monthly' && [styles.selectedType, { backgroundColor: themeColors.surface }]
+              ]}
+              onPress={() => setSelectedType(selectedType === 'monthly' ? null : 'monthly')}
+            >
+              <View style={styles.typeButtonContent}>
+                <Text style={[
+                  styles.typeText,
+                  { color: themeColors.textSecondary },
+                  selectedType === 'monthly' && { color: themeColors.primary }
+                ]}>Monthly</Text>
+                {!profile?.is_subscribed && <Lock size={12} color={selectedType === 'monthly' ? themeColors.primary : themeColors.textSecondary} />}
+              </View>
             </TouchableOpacity>
           </View>
-          
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={themeColors.primary} />
+
+          <View style={[styles.dailyHoroscopeCard, { 
+            backgroundColor: themeColors.surface,
+            borderColor: themeColors.cardBorder
+          }]}>
+            <View style={styles.horoscopeHeader}>
+              <Text style={[styles.cardTitle, { color: themeColors.text }]}>
+                {selectedType ? `Your ${selectedType.charAt(0).toUpperCase() + selectedType.slice(1)} Horoscope` : `${profile?.zodiac_sign || 'Your'} Horoscope`}
+              </Text>
+              <TouchableOpacity onPress={onRefresh} style={styles.refreshButton}>
+                <RefreshCw size={20} color={themeColors.primary} />
+              </TouchableOpacity>
             </View>
-          ) : (
-            <>
-              {!profile?.zodiac_sign ? (
-                <Text style={[styles.noHoroscopeText, { color: themeColors.textSecondary }]}>
-                  Set your zodiac sign to view your horoscope
-                </Text>
-              ) : (
-                <>
-                  <Text style={[styles.horoscopeText, { color: themeColors.textSecondary }]}>
-                    {horoscope?.content || 'No horoscope available for today'}
+            
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={themeColors.primary} />
+              </View>
+            ) : (
+              <>
+                {!profile?.zodiac_sign ? (
+                  <Text style={[styles.noHoroscopeText, { color: themeColors.textSecondary }]}>
+                    Set your zodiac sign to view your horoscope
                   </Text>
-                  {selectedType === 'daily' && profile.is_subscribed && horoscope?.love_score && (
-                    <View style={[styles.scoreContainer, { borderTopColor: themeColors.border }]}>
-                      <View style={styles.scoreItem}>
-                        <Heart color="#FF6B6B" size={24} />
-                        <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                          {horoscope.love_score}/10
-                        </Text>
-                        <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                          Love
-                        </Text>
+                ) : (
+                  <>
+                    <Text style={[styles.horoscopeText, { color: themeColors.textSecondary }]}>
+                      {horoscope?.content || 'No horoscope available'}
+                    </Text>
+                    {selectedType === 'daily' && profile.is_subscribed && horoscope?.love_score && (
+                      <View style={[styles.scoreContainer, { borderTopColor: themeColors.border }]}>
+                        <View style={styles.scoreItem}>
+                          <Heart color="#FF6B6B" size={24} />
+                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
+                            {horoscope.love_score}/10
+                          </Text>
+                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
+                            Love
+                          </Text>
+                        </View>
+                        <View style={styles.scoreItem}>
+                          <Moon color="#4A90E2" size={24} />
+                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
+                            {horoscope.mood_score}/10
+                          </Text>
+                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
+                            Mood
+                          </Text>
+                        </View>
+                        <View style={styles.scoreItem}>
+                          <DollarSign color="#2ECC71" size={24} />
+                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
+                            {horoscope.money_score}/10
+                          </Text>
+                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
+                            Money
+                          </Text>
+                        </View>
                       </View>
-                      <View style={styles.scoreItem}>
-                        <Moon color="#4A90E2" size={24} />
-                        <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                          {horoscope.mood_score}/10
-                        </Text>
-                        <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                          Mood
-                        </Text>
-                      </View>
-                      <View style={styles.scoreItem}>
-                        <DollarSign color="#2ECC71" size={24} />
-                        <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                          {horoscope.money_score}/10
-                        </Text>
-                        <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                          Money
-                        </Text>
-                      </View>
-                    </View>
-                  )}
-                </>
-              )}
-            </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </View>
+
+          {(!profile?.birth_date || !profile?.birth_time || !profile?.birth_city) && (
+            <View style={[styles.completeProfileCard, { backgroundColor: themeColors.accentBackground }]}>
+              <Text style={[styles.completeProfileTitle, { color: themeColors.accentText }]}>
+                Complete Your Birth Chart
+              </Text>
+              <Text style={[styles.completeProfileText, { color: themeColors.textSecondary }]}>
+                Add your birth details to get personalized horoscope readings.
+              </Text>
+              <TouchableOpacity 
+                style={[styles.completeProfileButton, { backgroundColor: themeColors.primary }]}
+                onPress={() => router.push('/profile')}
+              >
+                <Text style={styles.completeProfileButtonText}>Complete Profile</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
-
-        {(!profile?.birth_date || !profile?.birth_time || !profile?.birth_city) && (
-          <View style={[styles.completeProfileCard, { backgroundColor: themeColors.accentBackground }]}>
-            <Text style={[styles.completeProfileTitle, { color: themeColors.accentText }]}>
-              Complete Your Birth Chart
-            </Text>
-            <Text style={[styles.completeProfileText, { color: themeColors.textSecondary }]}>
-              Add your birth details to get personalized horoscope readings.
-            </Text>
-            <TouchableOpacity style={[styles.completeProfileButton, { backgroundColor: themeColors.primary }]}>
-              <Text style={styles.completeProfileButtonText}>Complete Profile</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -340,37 +333,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  welcomeSection: {
+    padding: 16,
+    marginBottom: 16,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
   loadingContainer: {
     padding: 40,
     alignItems: 'center',
   },
-  header: {
-    paddingTop: 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  profileButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileInitial: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-  },
   greeting: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
     marginBottom: 8,
     fontFamily: 'Inter-Bold',
   },
@@ -381,18 +360,12 @@ const styles = StyleSheet.create({
   },
   zodiacText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#FFD700',
     marginLeft: 8,
     fontFamily: 'Inter-Medium',
   },
   date: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
     fontFamily: 'Inter-Regular',
-  },
-  content: {
-    padding: 16,
   },
   typeSelector: {
     flexDirection: 'row',
@@ -446,7 +419,6 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '600',
     fontFamily: 'Inter-SemiBold',
   },
   refreshButton: {
@@ -478,7 +450,6 @@ const styles = StyleSheet.create({
   },
   scoreValue: {
     fontSize: 18,
-    fontWeight: 'bold',
     marginTop: 8,
     fontFamily: 'Inter-Bold',
   },
@@ -494,7 +465,6 @@ const styles = StyleSheet.create({
   },
   completeProfileTitle: {
     fontSize: 18,
-    fontWeight: '600',
     marginBottom: 8,
     fontFamily: 'Inter-SemiBold',
   },
