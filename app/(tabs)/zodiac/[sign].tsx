@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { supabase } from '@/lib/supabase';
+import { supabase, getUTCYYYYMMDD } from '@/lib/supabase';
 import { Share2, Printer, RefreshCw, Star, Heart, TriangleAlert as AlertTriangle, Users } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useTheme, colors } from '@/context/ThemeContext';
@@ -54,7 +54,9 @@ export default function ZodiacSignScreen() {
         .from('horoscopes')
         .select('content')
         .eq('zodiac_sign', details.name)
-        .eq('date', today)
+        .lte('date', today)
+        .order('date', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;

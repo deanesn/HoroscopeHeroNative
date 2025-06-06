@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
-import { Profile, supabase } from '@/lib/supabase';
+import { Profile, supabase, getUTCYYYYMMDD, getUTCWeekRange, getUTCMonthRange } from '@/lib/supabase';
 import { Heart, DollarSign, Moon, RefreshCw, Lock, User } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Flame as Aries, Mountain as Taurus, Users as Gemini, Moon as Cancer, Sun as Leo, Wheat as Virgo, Scale as Libra, Bug as Scorpio, Target as Sagittarius, Mountain as Capricorn, Waves as Aquarius, Fish as Pisces } from 'lucide-react-native';
-import { getUTCYYYYMMDD, getUTCWeekRange, getUTCMonthRange } from '@/lib/supabase';
 
 type HoroscopeType = 'daily' | 'weekly' | 'monthly';
 
@@ -64,22 +63,25 @@ export const HomeScreen = () => {
           .from('horoscopes')
           .select('content')
           .eq('zodiac_sign', zodiacSign)
-          .eq('date', today)
+          .lte('date', today)
+          .order('date', { ascending: false })
+          .limit(1)
           .maybeSingle());
       } else {
         switch (type) {
           case 'daily': {
             ({ data, error } = await supabase
               .from('daily_horoscopes')
-              .select('content, love_score, mood_score, money_score')
+              .select('content, love_score, mood_score, money_score, date')
               .eq('user_id', user?.id)
-              .eq('date', today)
+              .lte('date', today)
+              .order('date', { ascending: false })
+              .limit(1)
               .maybeSingle());
             break;
           }
           case 'weekly': {
             const { start: weekStart, end: weekEnd } = getUTCWeekRange();
-
             ({ data, error } = await supabase
               .from('weekly_horoscopes')
               .select('content, week_start_date, week_end_date')
@@ -91,7 +93,6 @@ export const HomeScreen = () => {
           }
           case 'monthly': {
             const { start: monthStart, end: monthEnd } = getUTCMonthRange();
-
             ({ data, error } = await supabase
               .from('monthly_horoscopes')
               .select('content, month_start_date, month_end_date')
