@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
-import { Star } from 'lucide-react-native';
 
 export const AuthScreen = () => {
   const [email, setEmail] = useState('');
@@ -54,10 +53,10 @@ export const AuthScreen = () => {
       >
         <View style={[styles.card, { backgroundColor: themeColors.surface }]}>
           <View style={[styles.logoContainer, { backgroundColor: themeColors.primary }]}>
-            <Star color="#FFD700" size={32} />
+            {/* Star icon removed */}
           </View>
           
-          <Text style={[styles.title, { color: themeColors.text }]}>Welcome Back</Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>HoroscopeHero</Text>
           <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
             Sign in to access your cosmic insights
           </Text>
