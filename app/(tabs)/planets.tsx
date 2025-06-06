@@ -88,7 +88,9 @@ export default function PlanetsScreen() {
           title="Planets" 
           subtitle="Explore planetary movements and retrogrades"
         />
-        
+      </LinearGradient>
+
+      <View style={styles.filterSection}>
         <View style={[styles.filterButtonsContainer, { backgroundColor: themeColors.border }]}>
           <ScrollView 
             horizontal 
@@ -102,7 +104,6 @@ export default function PlanetsScreen() {
                   styles.selectedFilterButton,
                   { backgroundColor: themeColors.surface }
                 ],
-                !selectedPlanet || { backgroundColor: 'transparent' }
               ]}
               onPress={() => setSelectedPlanet(null)}
             >
@@ -122,7 +123,6 @@ export default function PlanetsScreen() {
                     styles.selectedFilterButton,
                     { backgroundColor: themeColors.surface }
                   ],
-                  selectedPlanet === planet.name || { backgroundColor: 'transparent' }
                 ]}
                 onPress={() => setSelectedPlanet(planet.name)}
               >
@@ -136,7 +136,7 @@ export default function PlanetsScreen() {
             ))}
           </ScrollView>
         </View>
-      </LinearGradient>
+      </View>
 
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -269,6 +269,10 @@ const styles = StyleSheet.create({
   header: {
     paddingBottom: 16,
   },
+  filterSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -278,18 +282,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 12,
     padding: 4,
-    marginBottom: 16,
-    marginHorizontal: 16,
   },
   filterContent: {
-    paddingVertical: 8,
-    gap: 8,
+    paddingVertical: 4,
+    gap: 4,
   },
   filterButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    marginRight: 8,
+    marginRight: 4,
   },
   selectedFilterButton: {
     shadowColor: '#000',
