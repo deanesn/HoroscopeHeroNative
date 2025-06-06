@@ -5,7 +5,6 @@ import { useTheme, colors } from '@/context/ThemeContext';
 import { supabase } from '@/lib/supabase';
 import type { Planet, RetrogradeDetail } from '@/lib/supabase';
 import { Calendar, Clock, MapPin, TriangleAlert as AlertTriangle } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PlanetsScreen() {
   const { theme } = useTheme();
@@ -78,17 +77,10 @@ export default function PlanetsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <LinearGradient
-        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <Header 
-          title="Planets" 
-          subtitle="Explore planetary movements and retrogrades"
-        />
-      </LinearGradient>
+      <Header 
+        title="Planets" 
+        subtitle="Explore planetary movements and retrogrades"
+      />
 
       <View style={styles.filterSection}>
         <View style={[styles.filterButtonsContainer, { backgroundColor: themeColors.border }]}>
@@ -157,12 +149,7 @@ export default function PlanetsScreen() {
                 ]}
               >
                 {isRetrograde && (
-                  <LinearGradient
-                    colors={[themeColors.gradientStart, themeColors.gradientEnd]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.activeIndicator}
-                  />
+                  <View style={[styles.activeIndicator, { backgroundColor: themeColors.primary }]} />
                 )}
                 
                 <View style={styles.cardHeader}>
@@ -265,9 +252,6 @@ export default function PlanetsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    paddingBottom: 16,
   },
   filterSection: {
     paddingHorizontal: 16,
