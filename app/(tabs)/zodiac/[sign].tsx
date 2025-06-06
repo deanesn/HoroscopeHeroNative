@@ -48,7 +48,7 @@ export default function ZodiacSignScreen() {
     
     try {
       setLoading(true);
-      const today = new Date().toISOString().split('T')[0];
+      const today = getUTCYYYYMMDD();
       
       const { data, error } = await supabase
         .from('horoscopes')
