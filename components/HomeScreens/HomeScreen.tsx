@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import { Profile, supabase, getUTCYYYYMMDD, getUTCWeekRange, getUTCMonthRange } from '@/lib/supabase';
-import { Heart, DollarSign, Moon, RefreshCw, Lock, User } from 'lucide-react-native';
+import { Heart, DollarSign, Moon, RefreshCw, Lock, User, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Header } from '@/components/shared/Header';
+import { zodiacSigns } from '@/app/(tabs)/zodiac/data';
 import { Flame as Aries, Mountain as Taurus, Users as Gemini, Moon as Cancer, Sun as Leo, Wheat as Virgo, Scale as Libra, Bug as Scorpio, Target as Sagittarius, Mountain as Capricorn, Waves as Aquarius, Fish as Pisces } from 'lucide-react-native';
 
 type HoroscopeType = 'daily' | 'weekly' | 'monthly';
@@ -307,6 +308,39 @@ export const HomeScreen = () => {
             )}
           </View>
 
+          <View style={[styles.exploreSignsSection, { backgroundColor: themeColors.surface }]}>
+            <View style={styles.exploreSignsHeader}>
+              <Text style={[styles.exploreSignsTitle, { color: themeColors.text }]}>
+                Explore Other Signs
+              </Text>
+              <TouchableOpacity 
+                style={styles.seeAllButton}
+                onPress={() => router.push('/zodiac')}
+              >
+                <Text style={[styles.seeAllText, { color: themeColors.primary }]}>See All</Text>
+                <ChevronRight size={16} color={themeColors.primary} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.zodiacCardsGrid}>
+              {zodiacSigns.slice(0, 4).map((sign) => (
+                <TouchableOpacity
+                  key={sign.name}
+                  style={[styles.zodiacCard, { backgroundColor: themeColors.border }]}
+                  onPress={() => router.push(`/zodiac/${sign.name.toLowerCase()}`)}
+                >
+                  {getZodiacIcon(sign.name, 24, sign.color)}
+                  <Text style={[styles.zodiacCardName, { color: themeColors.text }]}>
+                    {sign.name}
+                  </Text>
+                  <Text style={[styles.zodiacCardDates, { color: themeColors.textSecondary }]}>
+                    {sign.dates}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {(!profile?.birth_date || !profile?.birth_time || !profile?.birth_city) && (
             <View style={[styles.completeProfileCard, { backgroundColor: themeColors.accentBackground }]}>
               <Text style={[styles.completeProfileTitle, { color: themeColors.accentText }]}>
@@ -483,5 +517,60 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-  }
+  },
+  exploreSignsSection: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  exploreSignsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  exploreSignsTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+  },
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  seeAllText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+  },
+  zodiacCardsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  zodiacCard: {
+    flex: 1,
+    minWidth: '45%',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  zodiacCardName: {
+    fontSize: 16,
+    marginTop: 8,
+    fontFamily: 'Inter-SemiBold',
+  },
+  zodiacCardDates: {
+    fontSize: 12,
+    marginTop: 4,
+    textAlign: 'center',
+    fontFamily: 'Inter-Regular',
+  },
 });
