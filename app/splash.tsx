@@ -59,7 +59,7 @@ export default function SplashScreen() {
     // Navigate to main app after animation completes
     const timer = setTimeout(() => {
       router.replace('/(app)');
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
