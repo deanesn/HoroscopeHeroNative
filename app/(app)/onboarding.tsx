@@ -22,7 +22,8 @@ export default function OnboardingScreen() {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
-      router.back();
+      // If on first step, redirect to main app instead of going back
+      router.replace('/(tabs)');
     }
   };
 
