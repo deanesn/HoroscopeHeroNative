@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { CheckCircle, Star, Sparkles, ChevronRight } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Star, Sparkles, ChevronRight } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -255,7 +255,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
               style={styles.getStartedButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color="#FFFFFF\" size="small" />
               ) : (
                 <>
                   <Text style={styles.getStartedButtonText}>Get Started</Text>
