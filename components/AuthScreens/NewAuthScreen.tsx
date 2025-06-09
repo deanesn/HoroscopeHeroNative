@@ -263,7 +263,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingVertical: 40,
-    minHeight: height,
   },
   header: {
     alignItems: 'center',
