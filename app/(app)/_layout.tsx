@@ -1,13 +1,9 @@
 import { useEffect } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { ThemeProvider, useTheme } from '@/context/ThemeContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-const queryClient = new QueryClient();
 
 function AppLayoutNav() {
   const { user, loading } = useAuth();
@@ -39,18 +35,7 @@ function AppLayoutNav() {
 }
 
 export default function AppLayout() {
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <AppLayoutNav />
-            <StatusBar style="auto" />
-          </AuthProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
-  );
+  return <AppLayoutNav />;
 }
 
 const styles = StyleSheet.create({
