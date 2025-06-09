@@ -214,7 +214,7 @@ export const NewAuthScreen = () => {
                   style={styles.primaryButtonGradient}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFFFFF\" size="small" />
+                    <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
                       {isSignUp ? 'Create Account' : 'Sign In'}
@@ -263,6 +263,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingVertical: 40,
+    minHeight: height,
   },
   header: {
     alignItems: 'center',
