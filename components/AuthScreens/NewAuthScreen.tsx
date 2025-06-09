@@ -148,10 +148,14 @@ export const NewAuthScreen = () => {
             {/* Email Input */}
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Email Address</Text>
-              <View style={[
-                styles.inputWrapper,
-                emailFocused && styles.inputWrapperFocused
-              ]}>
+              <TouchableOpacity 
+                style={[
+                  styles.inputWrapper,
+                  emailFocused && styles.inputWrapperFocused
+                ]}
+                activeOpacity={1}
+                onPress={() => emailRef.current?.focus()}
+              >
                 <Mail size={20} color={emailFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
                 <TextInput
                   ref={emailRef}
@@ -169,16 +173,20 @@ export const NewAuthScreen = () => {
                   onBlur={() => setEmailFocused(false)}
                   onSubmitEditing={() => passwordRef.current?.focus()}
                 />
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Password</Text>
-              <View style={[
-                styles.inputWrapper,
-                passwordFocused && styles.inputWrapperFocused
-              ]}>
+              <TouchableOpacity 
+                style={[
+                  styles.inputWrapper,
+                  passwordFocused && styles.inputWrapperFocused
+                ]}
+                activeOpacity={1}
+                onPress={() => passwordRef.current?.focus()}
+              >
                 <Lock size={20} color={passwordFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
                 <TextInput
                   ref={passwordRef}
@@ -205,7 +213,7 @@ export const NewAuthScreen = () => {
                     <Eye size={20} color="#9CA3AF" />
                   )}
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Forgot Password */}
@@ -229,7 +237,7 @@ export const NewAuthScreen = () => {
                 style={styles.primaryButtonGradient}
               >
                 {loading ? (
-                  <ActivityIndicator color="#FFFFFF\" size="small" />
+                  <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
                   <Text style={styles.primaryButtonText}>
                     {isSignUp ? 'Create Account' : 'Sign In'}
