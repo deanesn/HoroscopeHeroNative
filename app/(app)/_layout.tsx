@@ -28,6 +28,7 @@ function AppLayoutNav() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="auth" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
       <Stack.Screen name="+not-found" />
     </Stack>
