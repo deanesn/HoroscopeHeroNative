@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -35,6 +35,10 @@ export const NewAuthScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  
+  // Refs for input navigation
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
   
   const { signIn, signUp } = useAuth();
   const { theme } = useTheme();
@@ -100,7 +104,10 @@ export const NewAuthScreen = () => {
   }));
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <LinearGradient
         colors={['#1A1A2E', '#16213E', '#0F3460']}
         start={{ x: 0, y: 0 }}
@@ -108,137 +115,144 @@ export const NewAuthScreen = () => {
         style={styles.background}
       />
       
-      <KeyboardAvoidingView 
-        style={styles.keyboardContainer} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { minHeight: height }]}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none"
+        automaticallyAdjustKeyboardInsets={true}
+        bounces={false}
       >
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-        >
-          {/* Header Section */}
-          <View style={styles.header}>
-            <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
-              <View style={styles.logoBackground}>
-                <Image 
-                  source={require('@/assets/images/logo-small.png')}
-                  style={styles.logo}
-                  resizeMode="contain"
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Animated.View style={[styles.logoContainer, logoAnimatedStyle]}>
+            <View style={styles.logoBackground}>
+              <Image 
+                source={require('@/assets/images/logo-small.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+          </Animated.View>
+          
+          <Text style={styles.title}>Welcome to HoroscopeHero</Text>
+          <Text style={styles.subtitle}>
+            {isSignUp ? 'Create your account to start your cosmic journey' : 'Sign in to continue your cosmic journey'}
+          </Text>
+        </View>
+
+        {/* Form Section */}
+        <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
+          <View style={styles.form}>
+            {/* Email Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Email Address</Text>
+              <View style={[
+                styles.inputWrapper,
+                emailFocused && styles.inputWrapperFocused
+              ]}>
+                <Mail size={20} color={emailFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <TextInput
+                  ref={emailRef}
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  placeholderTextColor="#9CA3AF"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
+                  onSubmitEditing={() => passwordRef.current?.focus()}
                 />
               </View>
-            </Animated.View>
-            
-            <Text style={styles.title}>Welcome to HoroscopeHero</Text>
-            <Text style={styles.subtitle}>
-              {isSignUp ? 'Create your account to start your cosmic journey' : 'Sign in to continue your cosmic journey'}
-            </Text>
-          </View>
+            </View>
 
-          {/* Form Section */}
-          <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
-            <View style={styles.form}>
-              {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email Address</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  emailFocused && styles.inputWrapperFocused
-                ]}>
-                  <Mail size={20} color={emailFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#9CA3AF"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
-                  />
-                </View>
-              </View>
-
-              {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Password</Text>
-                <View style={[
-                  styles.inputWrapper,
-                  passwordFocused && styles.inputWrapperFocused
-                ]}>
-                  <Lock size={20} color={passwordFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
-                  <TextInput
-                    style={[styles.input, styles.passwordInput]}
-                    placeholder="Enter your password"
-                    placeholderTextColor="#9CA3AF"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
-                  />
-                  <TouchableOpacity 
-                    style={styles.eyeButton}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={20} color="#9CA3AF" />
-                    ) : (
-                      <Eye size={20} color="#9CA3AF" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Forgot Password */}
-              {!isSignUp && (
-                <TouchableOpacity style={styles.forgotPasswordContainer}>
-                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-                </TouchableOpacity>
-              )}
-
-              {/* Sign In/Up Button */}
-              <TouchableOpacity 
-                style={[styles.primaryButton, loading && styles.primaryButtonDisabled]} 
-                onPress={handleAuth}
-                disabled={loading}
-              >
-                <LinearGradient
-                  colors={['#8A2BE2', '#6d28d9']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.primaryButtonGradient}
+            {/* Password Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <View style={[
+                styles.inputWrapper,
+                passwordFocused && styles.inputWrapperFocused
+              ]}>
+                <Lock size={20} color={passwordFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <TextInput
+                  ref={passwordRef}
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="Enter your password"
+                  placeholderTextColor="#9CA3AF"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="done"
+                  blurOnSubmit={false}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
+                  onSubmitEditing={handleAuth}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                  activeOpacity={0.7}
                 >
-                  {loading ? (
-                    <ActivityIndicator color="#FFFFFF\" size="small" />
+                  {showPassword ? (
+                    <EyeOff size={20} color="#9CA3AF" />
                   ) : (
-                    <Text style={styles.primaryButtonText}>
-                      {isSignUp ? 'Create Account' : 'Sign In'}
-                    </Text>
+                    <Eye size={20} color="#9CA3AF" />
                   )}
-                </LinearGradient>
-              </TouchableOpacity>
-
-              {/* Toggle Sign Up/In */}
-              <View style={styles.toggleContainer}>
-                <Text style={styles.toggleText}>
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                </Text>
-                <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
-                  <Text style={styles.toggleButtonText}>
-                    {isSignUp ? 'Sign In' : 'Sign Up'}
-                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+
+            {/* Forgot Password */}
+            {!isSignUp && (
+              <TouchableOpacity style={styles.forgotPasswordContainer} activeOpacity={0.7}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Sign In/Up Button */}
+            <TouchableOpacity 
+              style={[styles.primaryButton, loading && styles.primaryButtonDisabled]} 
+              onPress={handleAuth}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#8A2BE2', '#6d28d9']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.primaryButtonGradient}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>
+                    {isSignUp ? 'Create Account' : 'Sign In'}
+                  </Text>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* Toggle Sign Up/In */}
+            <View style={styles.toggleContainer}>
+              <Text style={styles.toggleText}>
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              </Text>
+              <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} activeOpacity={0.7}>
+                <Text style={styles.toggleButtonText}>
+                  {isSignUp ? 'Sign In' : 'Sign Up'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -252,9 +266,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollView: {
     flex: 1,
@@ -365,6 +376,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#1F2937',
+    paddingVertical: 0,
   },
   passwordInput: {
     paddingRight: 40,
