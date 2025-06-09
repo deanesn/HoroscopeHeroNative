@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { Stack, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
-import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 
 function AppLayoutNav() {
   const { user, loading } = useAuth();
@@ -11,10 +10,17 @@ function AppLayoutNav() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/auth');
+    if (!loading) {
+      if (!user) {
+        // User is not authenticated, ensure we're on the auth screen
+        router.replace('/auth');
+      } else {
+        // User is authenticated, check if they need onboarding
+        // For now, we'll assume they can access the main app
+        // In a real app, you'd check the user's onboarding status here
+      }
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -24,13 +30,21 @@ function AppLayoutNav() {
     );
   }
 
+  // If user is not authenticated, only show auth screen
+  if (!user) {
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
+      </Stack>
+    );
+  }
+
+  // If user is authenticated, show full app navigation
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="auth" options={{ headerShown: false }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="+not-found" />
     </Stack>
   );
 }
