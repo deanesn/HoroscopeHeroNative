@@ -158,9 +158,9 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '60%' }]} />
+              <View style={[styles.progressFill, { width: '40%' }]} />
             </View>
-            <Text style={styles.progressText}>3 of 5</Text>
+            <Text style={styles.progressText}>2 of 5</Text>
           </View>
         </View>
 
@@ -294,7 +294,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
               style={styles.continueButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF\" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
                   <Text style={styles.continueButtonText}>Continue</Text>

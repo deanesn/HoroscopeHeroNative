@@ -176,9 +176,9 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
           
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '40%' }]} />
+              <View style={[styles.progressFill, { width: '20%' }]} />
             </View>
-            <Text style={styles.progressText}>2 of 5</Text>
+            <Text style={styles.progressText}>1 of 5</Text>
           </View>
         </View>
 
@@ -310,7 +310,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
               style={styles.continueButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF\" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
                   <Text style={styles.continueButtonText}>Continue</Text>

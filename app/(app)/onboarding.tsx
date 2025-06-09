@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { BirthDateTimeScreen } from '@/components/OnboardingScreens/BirthDateTimeScreen';
 import { BirthLocationScreen } from '@/components/OnboardingScreens/BirthLocationScreen';
+import { OnboardingCompleteScreen } from '@/components/OnboardingScreens/OnboardingCompleteScreen';
 import { useRouter } from 'expo-router';
 
 export default function OnboardingScreen() {
@@ -9,7 +10,7 @@ export default function OnboardingScreen() {
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
-    if (currentStep < 1) {
+    if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
     } else {
       // Complete onboarding and navigate to main app
@@ -31,6 +32,8 @@ export default function OnboardingScreen() {
         return <BirthDateTimeScreen onNext={handleNext} onBack={handleBack} />;
       case 1:
         return <BirthLocationScreen onNext={handleNext} onBack={handleBack} />;
+      case 2:
+        return <OnboardingCompleteScreen onNext={handleNext} onBack={handleBack} />;
       default:
         return <BirthDateTimeScreen onNext={handleNext} onBack={handleBack} />;
     }
