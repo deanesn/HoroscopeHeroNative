@@ -294,7 +294,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
               style={styles.continueButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color="#FFFFFF\" size="small" />
               ) : (
                 <>
                   <Text style={styles.continueButtonText}>Continue</Text>
