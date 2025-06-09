@@ -16,7 +16,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Eye, EyeOff, Mail, Lock, Apple, Chrome } from 'lucide-react-native';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -212,7 +212,7 @@ export const NewAuthScreen = () => {
                   style={styles.primaryButtonGradient}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFFFFF\" size="small" />
+                    <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
                       {isSignUp ? 'Create Account' : 'Sign In'}
@@ -220,26 +220,6 @@ export const NewAuthScreen = () => {
                   )}
                 </LinearGradient>
               </TouchableOpacity>
-
-              {/* Divider */}
-              <View style={styles.dividerContainer}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or continue with</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              {/* Social Login Buttons */}
-              <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity style={styles.socialButton}>
-                  <Chrome size={24} color="#4285F4" />
-                  <Text style={styles.socialButtonText}>Google</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.socialButton}>
-                  <Apple size={24} color="#000000" />
-                  <Text style={styles.socialButtonText}>Apple</Text>
-                </TouchableOpacity>
-              </View>
 
               {/* Toggle Sign Up/In */}
               <View style={styles.toggleContainer}>
@@ -416,44 +396,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     letterSpacing: 0.5,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  dividerText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#9CA3AF',
-    marginHorizontal: 16,
-  },
-  socialButtonsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  socialButtonText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#374151',
   },
   toggleContainer: {
     flexDirection: 'row',
