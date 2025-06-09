@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Redirect } from 'expo-router';
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '@/lib/supabase';
+import { Redirect } from 'expo-router';
+import { useEffect, useState } from 'react';
 
-export default function AppLayout() {
+export default function IndexPage() {
   const { user, loading } = useAuth();
   const { theme } = useTheme();
   const themeColors = colors[theme];

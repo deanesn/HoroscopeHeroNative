@@ -13,8 +13,8 @@ export default function OnboardingScreen() {
     if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete onboarding and navigate to main app
-      router.replace('/(tabs)');
+      // Complete onboarding and navigate to root to determine next step
+      router.replace('/');
     }
   };
 
@@ -22,8 +22,8 @@ export default function OnboardingScreen() {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
-      // If on first step, redirect to main app instead of going back
-      router.replace('/(tabs)');
+      // If on first step, redirect to root instead of going back
+      router.replace('/');
     }
   };
 

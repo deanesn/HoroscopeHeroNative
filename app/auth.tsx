@@ -7,9 +7,9 @@ import { Redirect } from 'expo-router';
 export default function Auth() {
   const { user } = useAuth();
 
-  // If user is already logged in, redirect to app layout to determine next step
+  // If user is already logged in, redirect to root to determine next step
   if (user) {
-    return <Redirect href="/(app)" />;
+    return <Redirect href="/" />;
   }
 
   return <NewAuthScreen />;
