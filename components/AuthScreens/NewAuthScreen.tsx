@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    flex: 1,
+    // Removed flex: 1 to fix keyboard closing issue
   },
   scrollContent: {
     flexGrow: 1,
