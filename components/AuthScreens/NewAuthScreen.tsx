@@ -214,7 +214,7 @@ export const NewAuthScreen = () => {
                   style={styles.primaryButtonGradient}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFFFFF\" size="small" />
+                    <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
                       {isSignUp ? 'Create Account' : 'Sign In'}
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    // Removed flex: 1 to fix keyboard closing issue
+    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
