@@ -113,9 +113,11 @@ export const NewAuthScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView 
+          style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
         >
           {/* Header Section */}
           <View style={styles.header}>
@@ -212,7 +214,7 @@ export const NewAuthScreen = () => {
                   style={styles.primaryButtonGradient}
                 >
                   {loading ? (
-                    <ActivityIndicator color="#FFFFFF\" size="small" />
+                    <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
                     <Text style={styles.primaryButtonText}>
                       {isSignUp ? 'Create Account' : 'Sign In'}
@@ -254,15 +256,19 @@ const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingVertical: 40,
+    minHeight: height,
   },
   header: {
     alignItems: 'center',
     marginBottom: 40,
+    paddingTop: 60,
   },
   logoContainer: {
     marginBottom: 24,
@@ -307,6 +313,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 24,
+    marginBottom: 40,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
