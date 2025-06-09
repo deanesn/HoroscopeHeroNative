@@ -73,6 +73,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await createProfile(session.user);
           }
 
+          // Handle successful sign in/up - navigate directly to appropriate screen
+          if ((event === 'SIGNED_IN' || event === 'SIGNED_UP') && session?.user) {
+            try {
+              // Check onboarding status
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('is_onboarding_complete')
+                .eq('id', session.user.id)
+                .single();
+
+              if (error) {
+                console.error('Error fetching profile:', error);
+                // Fallback to main app if there's an error
+                router.replace('/(tabs)');
+                return;
+              }
+
+              if (profile?.is_onboarding_complete) {
+                router.replace('/(tabs)');
+              } else {
+                router.replace('/onboarding');
+              }
+            } catch (error) {
+              console.error('Error during post-auth navigation:', error);
+              // Fallback to main app
+              router.replace('/(tabs)');
+            }
+          }
+
           // Handle sign out
           if (event === 'SIGNED_OUT') {
             router.replace('/auth');

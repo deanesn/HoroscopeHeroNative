@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -18,7 +17,7 @@ const { width, height } = Dimensions.get('window');
 export default function SplashScreen() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [navigationReady, setNavigationReady] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   
   // Animation values
   const logoScale = useSharedValue(0);
@@ -60,54 +59,30 @@ export default function SplashScreen() {
       easing: Easing.out(Easing.quad),
     }));
 
-    // Wait for animations to complete, then check auth status and navigate
+    // Wait for animations to complete, then mark initial load as complete
     const timer = setTimeout(() => {
-      setNavigationReady(true);
+      setInitialLoadComplete(true);
     }, 2500);
 
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    const handleNavigation = async () => {
-      // Don't navigate until animations are done and auth is loaded
-      if (!navigationReady || authLoading) return;
+    // Only handle initial app launch navigation
+    // Post-authentication navigation is now handled by AuthContext
+    const handleInitialNavigation = () => {
+      if (!initialLoadComplete || authLoading) return;
 
-      try {
-        if (!user) {
-          // User is not authenticated, go to auth
-          router.replace('/auth');
-          return;
-        }
-
-        // User is authenticated, check onboarding status
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('is_onboarding_complete')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          // Fallback to main app if there's an error
-          router.replace('/(tabs)');
-          return;
-        }
-
-        if (profile?.is_onboarding_complete) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/onboarding');
-        }
-      } catch (error) {
-        console.error('Unexpected error during navigation:', error);
-        // Fallback to main app
-        router.replace('/(tabs)');
+      // If no user on initial load, go to auth
+      if (!user) {
+        router.replace('/auth');
       }
+      // If user exists on initial load, AuthContext will handle navigation
+      // based on onboarding status via the auth state change listener
     };
 
-    handleNavigation();
-  }, [navigationReady, authLoading, user, router]);
+    handleInitialNavigation();
+  }, [initialLoadComplete, authLoading, user, router]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: logoScale.value }],
