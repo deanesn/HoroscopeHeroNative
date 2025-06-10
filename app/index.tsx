@@ -17,7 +17,7 @@ const { width, height } = Dimensions.get('window');
 export default function SplashScreen() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [hasNavigated, setHasNavigated] = useState(false);
   
   // Animation values
   const logoScale = useSharedValue(0);
@@ -58,31 +58,25 @@ export default function SplashScreen() {
       duration: 600,
       easing: Easing.out(Easing.quad),
     }));
-
-    // Wait for animations to complete, then mark initial load as complete
-    const timer = setTimeout(() => {
-      setInitialLoadComplete(true);
-    }, 2500);
-
-    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Only handle initial app launch navigation
-    // Post-authentication navigation is now handled by AuthContext
-    const handleInitialNavigation = () => {
-      if (!initialLoadComplete || authLoading) return;
+    // Handle navigation once auth loading is complete and we haven't navigated yet
+    if (!authLoading && !hasNavigated) {
+      setHasNavigated(true);
+      
+      // Add a small delay to let animations complete
+      const timer = setTimeout(() => {
+        if (!user) {
+          router.replace('/auth');
+        }
+        // If user exists, AuthContext will handle navigation automatically
+        // via the auth state change listener
+      }, 1500); // Reduced from 2500 to 1500
 
-      // If no user on initial load, go to auth
-      if (!user) {
-        router.replace('/auth');
-      }
-      // If user exists on initial load, AuthContext will handle navigation
-      // based on onboarding status via the auth state change listener
-    };
-
-    handleInitialNavigation();
-  }, [initialLoadComplete, authLoading, user, router]);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, user, hasNavigated, router]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: logoScale.value }],
