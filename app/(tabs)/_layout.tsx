@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home as Home, Sun, Heart, Globe } from 'lucide-react-native';
+import { Chrome as Home, Sun, Heart, Globe } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
