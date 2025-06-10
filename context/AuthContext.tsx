@@ -41,15 +41,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
           }
           console.error('Error getting session:', error.message);
+          if (mounted) {
+            router.replace('/auth');
+          }
           return;
         }
         
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
+
+          // Handle initial navigation based on session state
+          if (session?.user) {
+            try {
+              // Check onboarding status
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('is_onboarding_complete')
+                .eq('id', session.user.id)
+                .single();
+
+              if (profileError) {
+                console.error('Error fetching profile:', profileError);
+                // Fallback to main app if there's an error
+                router.replace('/(tabs)');
+                return;
+              }
+
+              if (profile?.is_onboarding_complete) {
+                router.replace('/(tabs)');
+              } else {
+                router.replace('/onboarding');
+              }
+            } catch (error) {
+              console.error('Error during post-auth navigation:', error);
+              // Fallback to main app
+              router.replace('/(tabs)');
+            }
+          } else {
+            // No session, go to auth
+            router.replace('/auth');
+          }
         }
       } catch (error) {
         console.error('Unexpected error during session initialization:', error);
+        if (mounted) {
+          router.replace('/auth');
+        }
       } finally {
         if (mounted) {
           setLoading(false);

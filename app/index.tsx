@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
 import Animated, { 
@@ -15,9 +14,7 @@ import Animated, {
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const [hasNavigated, setHasNavigated] = useState(false);
+  const { loading: authLoading } = useAuth();
   
   // Animation values
   const logoScale = useSharedValue(0);
@@ -27,7 +24,7 @@ export default function SplashScreen() {
   const subtitleOpacity = useSharedValue(0);
   const subtitleTranslateY = useSharedValue(20);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Start animations immediately
     logoScale.value = withTiming(1, {
       duration: 800,
@@ -59,24 +56,6 @@ export default function SplashScreen() {
       easing: Easing.out(Easing.quad),
     }));
   }, []);
-
-  useEffect(() => {
-    // Handle navigation once auth loading is complete and we haven't navigated yet
-    if (!authLoading && !hasNavigated) {
-      setHasNavigated(true);
-      
-      // Add a small delay to let animations complete
-      const timer = setTimeout(() => {
-        if (!user) {
-          router.replace('/auth');
-        }
-        // If user exists, AuthContext will handle navigation automatically
-        // via the auth state change listener
-      }, 1500); // Reduced from 2500 to 1500
-
-      return () => clearTimeout(timer);
-    }
-  }, [authLoading, user, hasNavigated, router]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: logoScale.value }],
