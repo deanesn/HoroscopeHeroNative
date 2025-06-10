@@ -90,6 +90,8 @@ export const HomeScreen = () => {
               .eq('user_id', user?.id)
               .gte('week_start_date', weekStart)
               .lte('week_end_date', weekEnd)
+              .order('week_start_date', { ascending: false })
+              .limit(1)
               .maybeSingle());
             break;
           }
@@ -101,6 +103,8 @@ export const HomeScreen = () => {
               .eq('user_id', user?.id)
               .gte('month_start_date', monthStart)
               .lte('month_end_date', monthEnd)
+              .order('month_start_date', { ascending: false })
+              .limit(1)
               .maybeSingle());
             break;
           }
