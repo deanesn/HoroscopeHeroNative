@@ -81,6 +81,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     const startYear = today.getFullYear() - 100;
     const endYear = today.getFullYear() - 13; // Minimum age 13
 
+    // Generate all dates from most recent to oldest
     for (let year = endYear; year >= startYear; year--) {
       for (let month = 11; month >= 0; month--) {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -89,19 +90,17 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
           if (date <= today) {
             dates.push(date);
           }
-          if (dates.length >= 50) break; // Limit for performance
         }
-        if (dates.length >= 50) break;
       }
-      if (dates.length >= 50) break;
     }
     return dates;
   };
 
   const generateTimeOptions = () => {
     const times = [];
+    // Generate time options in 1-minute intervals for more precision
     for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
+      for (let minute = 0; minute < 60; minute++) {
         times.push({ hour, minute });
       }
     }
@@ -211,7 +210,16 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
               {showDatePicker && (
                 <View style={styles.pickerContainer}>
-                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
+                  <View style={styles.pickerHeader}>
+                    <Text style={styles.pickerHeaderText}>Select Birth Date</Text>
+                    <TouchableOpacity 
+                      style={styles.pickerCloseButton}
+                      onPress={() => setShowDatePicker(false)}
+                    >
+                      <Text style={styles.pickerCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={true}>
                     {dateOptions.map((date, index) => (
                       <TouchableOpacity
                         key={index}
@@ -256,7 +264,16 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
               {showTimePicker && (
                 <View style={styles.pickerContainer}>
-                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
+                  <View style={styles.pickerHeader}>
+                    <Text style={styles.pickerHeaderText}>Select Birth Time</Text>
+                    <TouchableOpacity 
+                      style={styles.pickerCloseButton}
+                      onPress={() => setShowTimePicker(false)}
+                    >
+                      <Text style={styles.pickerCloseText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={true}>
                     {timeOptions.map((time, index) => (
                       <TouchableOpacity
                         key={index}
@@ -463,11 +480,45 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    maxHeight: 200,
+    maxHeight: 300,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  pickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
+  },
+  pickerHeaderText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#374151',
+  },
+  pickerCloseButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#8A2BE2',
+    borderRadius: 8,
+  },
+  pickerCloseText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#FFFFFF',
   },
   picker: {
-    maxHeight: 200,
+    maxHeight: 250,
   },
   pickerItem: {
     paddingHorizontal: 16,
