@@ -159,15 +159,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { error } = await supabase
         .from('profiles')
-        .insert([{
+        .upsert([{
           id: user.id,
           first_name: firstName || null,
           last_name: lastName || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        }]);
+        }], {
+          onConflict: 'id',
+          ignoreDuplicates: true
+        });
 
-      if (error && error.code !== '23505') {
+      if (error) {
         console.error('Error creating profile:', error.message);
       }
     } catch (error) {
