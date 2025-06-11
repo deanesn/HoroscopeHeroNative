@@ -106,11 +106,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(session?.user ?? null);
           }
 
-          // Create profile on sign up
-          if (event === 'SIGNED_UP' && session?.user) {
-            await createProfile(session.user);
-          }
-
           // Handle successful sign in/up - navigate directly to appropriate screen
           if ((event === 'SIGNED_IN' || event === 'SIGNED_UP') && session?.user) {
             try {
