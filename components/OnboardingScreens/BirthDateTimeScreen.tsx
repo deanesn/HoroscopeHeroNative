@@ -224,7 +224,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
         <View style={styles.webInputContainer}>
           <TextInput
             style={styles.webInput}
-            placeholder="HH:MM"
+            placeholder="HH:MM AM/PM"
             placeholderTextColor="#9CA3AF"
             value={webTimeInput}
             onChangeText={handleWebTimeChange}
