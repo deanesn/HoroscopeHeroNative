@@ -157,7 +157,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createProfile = async (user: User, firstName?: string, lastName?: string) => {
     try {
-      const { error } = await supabase
+      console.log('Creating profile for user:', user.id, 'with names:', firstName, lastName);
+      
+      const { data, error } = await supabase
         .from('profiles')
         .upsert([{
           id: user.id,
@@ -166,12 +168,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         }], {
-          onConflict: 'id',
-          ignoreDuplicates: true
+          onConflict: 'id'
+          // Removed ignoreDuplicates: true to allow updates
         });
 
       if (error) {
-        console.error('Error creating profile:', error.message);
+        console.error('Error creating/updating profile:', error.message);
+      } else {
+        console.log('Profile created/updated successfully:', data);
       }
     } catch (error) {
       console.error('Unexpected error creating profile:', error);
@@ -180,11 +184,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
+      console.log('Signing up user with email:', email, 'and names:', firstName, lastName);
+      
       const result = await supabase.auth.signUp({ email, password });
       
       // If sign up was successful and we have a user, create profile with name
       if (result.data.user && !result.error) {
+        console.log('Sign up successful, creating profile...');
         await createProfile(result.data.user, firstName, lastName);
+      } else if (result.error) {
+        console.error('Sign up error:', result.error.message);
       }
       
       return result;
@@ -196,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('Signing in user with email:', email);
       return await supabase.auth.signInWithPassword({ email, password });
     } catch (error) {
       console.error('Error signing in:', error);
