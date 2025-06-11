@@ -16,7 +16,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -28,15 +28,21 @@ import Animated, {
 const { width, height } = Dimensions.get('window');
 
 export const NewAuthScreen = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [firstNameFocused, setFirstNameFocused] = useState(false);
+  const [lastNameFocused, setLastNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   
   // Refs for input navigation
+  const firstNameRef = useRef<TextInput>(null);
+  const lastNameRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   
@@ -73,6 +79,11 @@ export const NewAuthScreen = () => {
       return;
     }
 
+    if (isSignUp && (!firstName.trim() || !lastName.trim())) {
+      Alert.alert('Error', 'Please enter your first and last name');
+      return;
+    }
+
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
       return;
@@ -81,7 +92,7 @@ export const NewAuthScreen = () => {
     setLoading(true);
     try {
       const { error } = isSignUp 
-        ? await signUp(email, password)
+        ? await signUp(email, password, firstName.trim(), lastName.trim())
         : await signIn(email, password);
 
       if (error) {
@@ -145,6 +156,71 @@ export const NewAuthScreen = () => {
         {/* Form Section */}
         <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
           <View style={styles.form}>
+            {/* Name Inputs - Only show during sign up */}
+            {isSignUp && (
+              <>
+                {/* First Name Input */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>First Name</Text>
+                  <TouchableOpacity 
+                    style={[
+                      styles.inputWrapper,
+                      firstNameFocused && styles.inputWrapperFocused
+                    ]}
+                    activeOpacity={1}
+                    onPress={() => firstNameRef.current?.focus()}
+                  >
+                    <User size={20} color={firstNameFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                    <TextInput
+                      ref={firstNameRef}
+                      style={styles.input}
+                      placeholder="Enter your first name"
+                      placeholderTextColor="#9CA3AF"
+                      value={firstName}
+                      onChangeText={setFirstName}
+                      autoCapitalize="words"
+                      autoCorrect={false}
+                      returnKeyType="next"
+                      blurOnSubmit={false}
+                      onFocus={() => setFirstNameFocused(true)}
+                      onBlur={() => setFirstNameFocused(false)}
+                      onSubmitEditing={() => lastNameRef.current?.focus()}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Last Name Input */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Last Name</Text>
+                  <TouchableOpacity 
+                    style={[
+                      styles.inputWrapper,
+                      lastNameFocused && styles.inputWrapperFocused
+                    ]}
+                    activeOpacity={1}
+                    onPress={() => lastNameRef.current?.focus()}
+                  >
+                    <User size={20} color={lastNameFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                    <TextInput
+                      ref={lastNameRef}
+                      style={styles.input}
+                      placeholder="Enter your last name"
+                      placeholderTextColor="#9CA3AF"
+                      value={lastName}
+                      onChangeText={setLastName}
+                      autoCapitalize="words"
+                      autoCorrect={false}
+                      returnKeyType="next"
+                      blurOnSubmit={false}
+                      onFocus={() => setLastNameFocused(true)}
+                      onBlur={() => setLastNameFocused(false)}
+                      onSubmitEditing={() => emailRef.current?.focus()}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
             {/* Email Input */}
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Email Address</Text>

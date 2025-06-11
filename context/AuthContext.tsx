@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ data: any; error: AuthError | null }>;
+  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ data: any; error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ data: any; error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
@@ -160,12 +160,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const createProfile = async (user: User) => {
+  const createProfile = async (user: User, firstName?: string, lastName?: string) => {
     try {
       const { error } = await supabase
         .from('profiles')
         .insert([{
           id: user.id,
+          first_name: firstName || null,
+          last_name: lastName || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         }]);
@@ -178,9 +180,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
-      return await supabase.auth.signUp({ email, password });
+      const result = await supabase.auth.signUp({ email, password });
+      
+      // If sign up was successful and we have a user, create profile with name
+      if (result.data.user && !result.error) {
+        await createProfile(result.data.user, firstName, lastName);
+      }
+      
+      return result;
     } catch (error) {
       console.error('Error signing up:', error);
       return { data: null, error: error as AuthError };
