@@ -5,7 +5,6 @@ import {
   TextInput, 
   TouchableOpacity, 
   StyleSheet, 
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -39,6 +38,7 @@ export const NewAuthScreen = () => {
   const [lastNameFocused, setLastNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   
   // Refs for input navigation
   const firstNameRef = useRef<TextInput>(null);
@@ -74,18 +74,21 @@ export const NewAuthScreen = () => {
   }, []);
 
   const handleAuth = async () => {
+    // Clear any existing error
+    setFormError(null);
+
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setFormError('Please fill in all fields');
       return;
     }
 
     if (isSignUp && (!firstName.trim() || !lastName.trim())) {
-      Alert.alert('Error', 'Please enter your first and last name');
+      setFormError('Please enter your first and last name');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      setFormError('Password must be at least 6 characters');
       return;
     }
 
@@ -96,10 +99,10 @@ export const NewAuthScreen = () => {
         : await signIn(email, password);
 
       if (error) {
-        Alert.alert('Error', error.message);
+        setFormError(error.message);
       }
     } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
+      setFormError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -156,6 +159,13 @@ export const NewAuthScreen = () => {
         {/* Form Section */}
         <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
           <View style={styles.form}>
+            {/* Error Message */}
+            {formError && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{formError}</Text>
+              </View>
+            )}
+
             {/* Name Inputs - Only show during sign up */}
             {isSignUp && (
               <>
@@ -419,6 +429,20 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 20,
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    marginBottom: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#EF4444',
+    textAlign: 'center',
   },
   inputContainer: {
     gap: 8,
