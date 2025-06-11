@@ -55,9 +55,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 supabase.auth.onAuthStateChange((event, session) => {
   try {
-    if (event === 'SIGNED_OUT') {
-      storage.removeItem('supabase.auth.token');
-    }
+    // Let Supabase handle session management internally
+    // Removed manual token removal that was interfering with auth state
   } catch (error) {
     console.error('Auth state change error:', error);
   }
