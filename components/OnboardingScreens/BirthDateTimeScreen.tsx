@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, Clock, ChevronRight, ArrowLeft } from 'lucide-react-native';
@@ -81,8 +82,10 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     const startYear = today.getFullYear() - 100;
     const endYear = today.getFullYear() - 13; // Minimum age 13
 
-    // Generate all dates from most recent to oldest
-    for (let year = endYear; year >= startYear; year--) {
+    // Generate a reasonable number of recent dates (last 30 years)
+    const recentStartYear = Math.max(startYear, endYear - 30);
+    
+    for (let year = endYear; year >= recentStartYear; year--) {
       for (let month = 11; month >= 0; month--) {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let day = daysInMonth; day >= 1; day--) {
@@ -98,9 +101,9 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
   const generateTimeOptions = () => {
     const times = [];
-    // Generate time options in 1-minute intervals for more precision
+    // Generate time options in 15-minute intervals for better performance
     for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute++) {
+      for (let minute = 0; minute < 60; minute += 15) {
         times.push({ hour, minute });
       }
     }
@@ -153,6 +156,46 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
   const dateOptions = generateDateOptions();
   const timeOptions = generateTimeOptions();
+
+  const renderDateItem = ({ item: date, index }: { item: Date; index: number }) => (
+    <TouchableOpacity
+      style={[
+        styles.pickerItem,
+        selectedDate?.getTime() === date.getTime() && styles.pickerItemSelected
+      ]}
+      onPress={() => {
+        setSelectedDate(date);
+        setShowDatePicker(false);
+      }}
+    >
+      <Text style={[
+        styles.pickerItemText,
+        selectedDate?.getTime() === date.getTime() && styles.pickerItemTextSelected
+      ]}>
+        {formatDate(date)}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderTimeItem = ({ item: time, index }: { item: { hour: number; minute: number }; index: number }) => (
+    <TouchableOpacity
+      style={[
+        styles.pickerItem,
+        selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemSelected
+      ]}
+      onPress={() => {
+        setSelectedTime(time);
+        setShowTimePicker(false);
+      }}
+    >
+      <Text style={[
+        styles.pickerItemText,
+        selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemTextSelected
+      ]}>
+        {formatTime(time.hour, time.minute)}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
@@ -219,28 +262,21 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                       <Text style={styles.pickerCloseText}>Done</Text>
                     </TouchableOpacity>
                   </View>
-                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={true}>
-                    {dateOptions.map((date, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.pickerItem,
-                          selectedDate?.getTime() === date.getTime() && styles.pickerItemSelected
-                        ]}
-                        onPress={() => {
-                          setSelectedDate(date);
-                          setShowDatePicker(false);
-                        }}
-                      >
-                        <Text style={[
-                          styles.pickerItemText,
-                          selectedDate?.getTime() === date.getTime() && styles.pickerItemTextSelected
-                        ]}>
-                          {formatDate(date)}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                  <FlatList
+                    data={dateOptions}
+                    renderItem={renderDateItem}
+                    keyExtractor={(item, index) => `date-${index}`}
+                    style={styles.picker}
+                    showsVerticalScrollIndicator={true}
+                    getItemLayout={(data, index) => ({
+                      length: 48,
+                      offset: 48 * index,
+                      index,
+                    })}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={20}
+                    windowSize={10}
+                  />
                 </View>
               )}
             </View>
@@ -273,28 +309,21 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                       <Text style={styles.pickerCloseText}>Done</Text>
                     </TouchableOpacity>
                   </View>
-                  <ScrollView style={styles.picker} showsVerticalScrollIndicator={true}>
-                    {timeOptions.map((time, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.pickerItem,
-                          selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemSelected
-                        ]}
-                        onPress={() => {
-                          setSelectedTime(time);
-                          setShowTimePicker(false);
-                        }}
-                      >
-                        <Text style={[
-                          styles.pickerItemText,
-                          selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemTextSelected
-                        ]}>
-                          {formatTime(time.hour, time.minute)}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                  <FlatList
+                    data={timeOptions}
+                    renderItem={renderTimeItem}
+                    keyExtractor={(item, index) => `time-${index}`}
+                    style={styles.picker}
+                    showsVerticalScrollIndicator={true}
+                    getItemLayout={(data, index) => ({
+                      length: 48,
+                      offset: 48 * index,
+                      index,
+                    })}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={20}
+                    windowSize={10}
+                  />
                 </View>
               )}
             </View>
@@ -525,6 +554,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
+    height: 48,
+    justifyContent: 'center',
   },
   pickerItemSelected: {
     backgroundColor: '#F3E8FF',
