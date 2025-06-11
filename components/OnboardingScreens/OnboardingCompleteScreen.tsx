@@ -4,17 +4,15 @@ import {
   Text, 
   TouchableOpacity, 
   StyleSheet, 
-  Alert,
   ScrollView,
   ActivityIndicator,
-  Image,
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { CircleCheck as CheckCircle, Star, Sparkles, ChevronRight } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Star, Sparkles, ChevronRight, Calendar, MapPin, Clock } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase, Profile } from '@/lib/supabase';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -34,6 +32,7 @@ interface OnboardingCompleteScreenProps {
 
 export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteScreenProps) => {
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -49,6 +48,9 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
   const sparkle3Opacity = useSharedValue(0);
 
   React.useEffect(() => {
+    // Fetch profile data
+    fetchProfile();
+
     // Animate check mark first
     checkOpacity.value = withTiming(1, {
       duration: 600,
@@ -91,15 +93,34 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
     ));
   }, []);
 
+  const fetchProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const handleCompleteOnboarding = async () => {
     if (!user?.id) {
-      Alert.alert('Error', 'User not found. Please try again.');
       return;
     }
 
     setLoading(true);
     try {
-      // Mark onboarding as complete and determine zodiac sign
+      // Mark onboarding as complete
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -116,10 +137,28 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
       onNext();
     } catch (error) {
       console.error('Error completing onboarding:', error);
-      Alert.alert('Error', 'Failed to complete onboarding. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   const checkAnimatedStyle = useAnimatedStyle(() => ({
@@ -163,7 +202,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: '100%' }]} />
             </View>
-            <Text style={styles.progressText}>4 of 5</Text>
+            <Text style={styles.progressText}>Complete!</Text>
           </View>
         </View>
 
@@ -190,13 +229,59 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
         {/* Content */}
         <Animated.View style={[styles.content, contentAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Congratulations!</Text>
+            <Text style={styles.title}>Welcome to the Stars!</Text>
             <Text style={styles.subtitle}>
-              Your cosmic profile is now complete. Get ready to discover personalized insights about your future!
+              Your cosmic profile is complete. Get ready to discover personalized insights about your celestial journey!
             </Text>
           </View>
 
+          {/* Profile Summary */}
+          {profile && (
+            <View style={styles.profileSummaryContainer}>
+              <Text style={styles.profileSummaryTitle}>Your Cosmic Profile</Text>
+              
+              <View style={styles.profileSummaryCard}>
+                <View style={styles.zodiacHeader}>
+                  <Star size={24} color="#8A2BE2" />
+                  <Text style={styles.zodiacSign}>{profile.zodiac_sign || 'Unknown'}</Text>
+                </View>
+
+                <View style={styles.profileDetails}>
+                  {profile.birth_date && (
+                    <View style={styles.profileDetailItem}>
+                      <Calendar size={16} color="#6B7280" />
+                      <Text style={styles.profileDetailText}>
+                        Born {formatDate(profile.birth_date)}
+                        {profile.birth_time && ` at ${formatTime(profile.birth_time)}`}
+                      </Text>
+                    </View>
+                  )}
+
+                  {profile.birth_city && profile.birth_country && (
+                    <View style={styles.profileDetailItem}>
+                      <MapPin size={16} color="#6B7280" />
+                      <Text style={styles.profileDetailText}>
+                        {profile.birth_city}, {profile.birth_country}
+                      </Text>
+                    </View>
+                  )}
+
+                  {profile.birth_latitude && profile.birth_longitude && (
+                    <View style={styles.profileDetailItem}>
+                      <Clock size={16} color="#6B7280" />
+                      <Text style={styles.profileDetailText}>
+                        {profile.birth_latitude.toFixed(4)}°, {profile.birth_longitude.toFixed(4)}°
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+          )}
+
           <View style={styles.featuresContainer}>
+            <Text style={styles.featuresTitle}>What's Next?</Text>
+            
             <View style={styles.featureItem}>
               <View style={styles.featureIcon}>
                 <Star size={24} color="#8A2BE2" />
@@ -204,7 +289,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
               <View style={styles.featureText}>
                 <Text style={styles.featureTitle}>Daily Horoscopes</Text>
                 <Text style={styles.featureDescription}>
-                  Personalized daily insights based on your birth chart
+                  Personalized daily insights based on your unique birth chart
                 </Text>
               </View>
             </View>
@@ -216,7 +301,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
               <View style={styles.featureText}>
                 <Text style={styles.featureTitle}>Cosmic Compatibility</Text>
                 <Text style={styles.featureDescription}>
-                  Discover your compatibility with friends and partners
+                  Discover your compatibility with friends, family, and partners
                 </Text>
               </View>
             </View>
@@ -236,7 +321,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
 
           <View style={styles.celebrationContainer}>
             <Text style={styles.celebrationText}>
-              🌟 Welcome to your cosmic journey! 🌟
+              ✨ Your cosmic adventure begins now! ✨
             </Text>
           </View>
         </Animated.View>
@@ -258,7 +343,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
-                  <Text style={styles.getStartedButtonText}>Get Started</Text>
+                  <Text style={styles.getStartedButtonText}>Enter HoroscopeHero</Text>
                   <ChevronRight size={20} color="#FFFFFF" />
                 </>
               )}
@@ -359,7 +444,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   title: {
     fontSize: 32,
@@ -377,6 +462,55 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     paddingHorizontal: 20,
   },
+  profileSummaryContainer: {
+    marginBottom: 32,
+  },
+  profileSummaryTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  profileSummaryCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  zodiacHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    gap: 12,
+  },
+  zodiacSign: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#8A2BE2',
+  },
+  profileDetails: {
+    gap: 12,
+  },
+  profileDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  profileDetailText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    flex: 1,
+  },
   featuresContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
@@ -390,6 +524,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+  },
+  featuresTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-SemiBold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 24,
   },
   featureItem: {
     flexDirection: 'row',

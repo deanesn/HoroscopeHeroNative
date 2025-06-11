@@ -5,13 +5,12 @@ import {
   TextInput,
   TouchableOpacity, 
   StyleSheet, 
-  Alert,
   ScrollView,
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, ChevronRight, ArrowLeft, Search } from 'lucide-react-native';
+import { MapPin, ChevronRight, ArrowLeft, Search, AlertCircle } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -30,29 +29,39 @@ interface BirthLocationScreenProps {
   onBack: () => void;
 }
 
+interface LocationResult {
+  name: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  timezone?: string;
+  admin1?: string; // State/Province
+}
+
 // Popular cities for quick selection
 const popularCities = [
-  { city: 'New York', country: 'United States', lat: 40.7128, lng: -74.0060, timezone: 'America/New_York' },
-  { city: 'Los Angeles', country: 'United States', lat: 34.0522, lng: -118.2437, timezone: 'America/Los_Angeles' },
-  { city: 'London', country: 'United Kingdom', lat: 51.5074, lng: -0.1278, timezone: 'Europe/London' },
-  { city: 'Paris', country: 'France', lat: 48.8566, lng: 2.3522, timezone: 'Europe/Paris' },
-  { city: 'Tokyo', country: 'Japan', lat: 35.6762, lng: 139.6503, timezone: 'Asia/Tokyo' },
-  { city: 'Sydney', country: 'Australia', lat: -33.8688, lng: 151.2093, timezone: 'Australia/Sydney' },
-  { city: 'Toronto', country: 'Canada', lat: 43.6532, lng: -79.3832, timezone: 'America/Toronto' },
-  { city: 'Berlin', country: 'Germany', lat: 52.5200, lng: 13.4050, timezone: 'Europe/Berlin' },
+  { name: 'New York', country: 'United States', latitude: 40.7128, longitude: -74.0060, timezone: 'America/New_York' },
+  { name: 'Los Angeles', country: 'United States', latitude: 34.0522, longitude: -118.2437, timezone: 'America/Los_Angeles' },
+  { name: 'London', country: 'United Kingdom', latitude: 51.5074, longitude: -0.1278, timezone: 'Europe/London' },
+  { name: 'Paris', country: 'France', latitude: 48.8566, longitude: 2.3522, timezone: 'Europe/Paris' },
+  { name: 'Tokyo', country: 'Japan', latitude: 35.6762, longitude: 139.6503, timezone: 'Asia/Tokyo' },
+  { name: 'Sydney', country: 'Australia', latitude: -33.8688, longitude: 151.2093, timezone: 'Australia/Sydney' },
+  { name: 'Toronto', country: 'Canada', latitude: 43.6532, longitude: -79.3832, timezone: 'America/Toronto' },
+  { name: 'Berlin', country: 'Germany', latitude: 52.5200, longitude: 13.4050, timezone: 'Europe/Berlin' },
 ];
 
 export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps) => {
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
+  const [searchResults, setSearchResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [cityFocused, setCityFocused] = useState(false);
-  const [countryFocused, setCountryFocused] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Refs for input focus handling
-  const cityInputRef = useRef<TextInput>(null);
-  const countryInputRef = useRef<TextInput>(null);
+  const searchInputRef = useRef<TextInput>(null);
   
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -75,58 +84,115 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
     });
   }, []);
 
-  const handleCitySelection = (selectedCity: typeof popularCities[0]) => {
-    setCity(selectedCity.city);
-    setCountry(selectedCity.country);
-    setShowSuggestions(false);
-  };
-
-  const handleSaveBirthLocation = async () => {
-    if (!city.trim() || !country.trim()) {
-      Alert.alert('Missing Information', 'Please enter both your birth city and country.');
-      return;
-    }
-
-    if (!user?.id) {
-      Alert.alert('Error', 'User not found. Please try again.');
+  const searchLocation = async (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSearchResults([]);
       return;
     }
 
     setLoading(true);
+    setError(null);
+
     try {
-      // For now, we'll use placeholder coordinates and timezone
-      // In a production app, you would integrate with a geocoding service
-      const selectedCityData = popularCities.find(
-        c => c.city.toLowerCase() === city.toLowerCase() && 
-             c.country.toLowerCase() === country.toLowerCase()
+      const response = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`
       );
 
-      const latitude = selectedCityData?.lat || 0;
-      const longitude = selectedCityData?.lng || 0;
-      const timezone = selectedCityData?.timezone || 'UTC';
+      if (!response.ok) {
+        throw new Error('Failed to search locations');
+      }
 
-      const { error } = await supabase
+      const data = await response.json();
+      
+      if (data.results && data.results.length > 0) {
+        const locations: LocationResult[] = data.results.map((result: any) => ({
+          name: result.name,
+          country: result.country,
+          latitude: result.latitude,
+          longitude: result.longitude,
+          timezone: result.timezone,
+          admin1: result.admin1,
+        }));
+        setSearchResults(locations);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error searching locations:', error);
+      setError('Failed to search locations. Please try again.');
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced search
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim() && showSuggestions) {
+        searchLocation(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, showSuggestions]);
+
+  const handleLocationSelection = (location: LocationResult) => {
+    setSelectedLocation(location);
+    setSearchQuery(`${location.name}, ${location.country}`);
+    setShowSuggestions(false);
+    setSearchResults([]);
+    setError(null);
+  };
+
+  const handlePopularCitySelection = (city: typeof popularCities[0]) => {
+    const location: LocationResult = {
+      name: city.name,
+      country: city.country,
+      latitude: city.latitude,
+      longitude: city.longitude,
+      timezone: city.timezone,
+    };
+    handleLocationSelection(location);
+  };
+
+  const handleSaveBirthLocation = async () => {
+    if (!selectedLocation) {
+      setError('Please select a birth location');
+      return;
+    }
+
+    if (!user?.id) {
+      setError('User not found. Please try again.');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          birth_city: city.trim(),
-          birth_country: country.trim(),
-          birth_latitude: latitude,
-          birth_longitude: longitude,
-          birth_timezone: timezone,
+          birth_city: selectedLocation.name,
+          birth_country: selectedLocation.country,
+          birth_latitude: selectedLocation.latitude,
+          birth_longitude: selectedLocation.longitude,
+          birth_timezone: selectedLocation.timezone || 'UTC',
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
-      if (error) {
-        throw error;
+      if (updateError) {
+        throw updateError;
       }
 
       onNext();
     } catch (error) {
       console.error('Error saving birth location:', error);
-      Alert.alert('Error', 'Failed to save birth location. Please try again.');
+      setError('Failed to save birth location. Please try again.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -134,11 +200,6 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
     opacity: formOpacity.value,
     transform: [{ translateY: formTranslateY.value }],
   }));
-
-  const filteredCities = popularCities.filter(cityData =>
-    cityData.city.toLowerCase().includes(city.toLowerCase()) ||
-    cityData.country.toLowerCase().includes(city.toLowerCase())
-  );
 
   return (
     <View style={styles.container}>
@@ -162,9 +223,9 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '40%' }]} />
+              <View style={[styles.progressFill, { width: '60%' }]} />
             </View>
-            <Text style={styles.progressText}>2 of 5</Text>
+            <Text style={styles.progressText}>3 of 5</Text>
           </View>
         </View>
 
@@ -173,107 +234,129 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Where were you born?</Text>
             <Text style={styles.subtitle}>
-              Your birth location helps us calculate accurate planetary positions for your chart
+              Your birth location helps us calculate accurate planetary positions for your astrological chart
             </Text>
           </View>
 
           <View style={styles.formContainer}>
-            {/* Birth City Input */}
+            {/* Error Message */}
+            {error && (
+              <View style={styles.errorContainer}>
+                <AlertCircle size={16} color="#EF4444" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+
+            {/* Location Search Input */}
             <View style={styles.inputSection}>
-              <Text style={styles.inputLabel}>Birth City</Text>
+              <Text style={styles.inputLabel}>Search for your birth city</Text>
               <TouchableOpacity 
                 style={[
                   styles.inputWrapper,
-                  cityFocused && styles.inputWrapperFocused
+                  searchFocused && styles.inputWrapperFocused
                 ]}
                 activeOpacity={1}
-                onPress={() => cityInputRef.current?.focus()}
+                onPress={() => searchInputRef.current?.focus()}
               >
-                <Search size={20} color={cityFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <Search size={20} color={searchFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
                 <TextInput
-                  ref={cityInputRef}
+                  ref={searchInputRef}
                   style={styles.input}
-                  placeholder="Enter your birth city"
+                  placeholder="Enter city name (e.g., New York, London)"
                   placeholderTextColor="#9CA3AF"
-                  value={city}
+                  value={searchQuery}
                   onChangeText={(text) => {
-                    setCity(text);
+                    setSearchQuery(text);
                     setShowSuggestions(text.length > 0);
+                    if (text.length === 0) {
+                      setSelectedLocation(null);
+                      setError(null);
+                    }
                   }}
                   onFocus={() => {
-                    setCityFocused(true);
-                    setShowSuggestions(city.length > 0);
+                    setSearchFocused(true);
+                    setShowSuggestions(searchQuery.length > 0);
                   }}
                   onBlur={() => {
-                    setCityFocused(false);
+                    setSearchFocused(false);
                     // Delay hiding suggestions to allow for selection
                     setTimeout(() => setShowSuggestions(false), 200);
                   }}
                   autoCorrect={false}
+                  autoCapitalize="words"
                 />
+                {loading && (
+                  <ActivityIndicator size="small" color="#8A2BE2" style={styles.loadingIcon} />
+                )}
               </TouchableOpacity>
 
-              {/* City Suggestions */}
-              {showSuggestions && filteredCities.length > 0 && (
+              {/* Search Results */}
+              {showSuggestions && searchResults.length > 0 && (
                 <View style={styles.suggestionsContainer}>
                   <ScrollView style={styles.suggestions} nestedScrollEnabled>
-                    {filteredCities.slice(0, 5).map((cityData, index) => (
+                    {searchResults.map((location, index) => (
                       <TouchableOpacity
                         key={index}
                         style={styles.suggestionItem}
-                        onPress={() => handleCitySelection(cityData)}
+                        onPress={() => handleLocationSelection(location)}
                       >
                         <MapPin size={16} color="#8A2BE2" />
                         <View style={styles.suggestionText}>
-                          <Text style={styles.suggestionCity}>{cityData.city}</Text>
-                          <Text style={styles.suggestionCountry}>{cityData.country}</Text>
+                          <Text style={styles.suggestionCity}>
+                            {location.name}
+                            {location.admin1 && `, ${location.admin1}`}
+                          </Text>
+                          <Text style={styles.suggestionCountry}>{location.country}</Text>
                         </View>
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
                 </View>
               )}
+
+              {/* No Results Message */}
+              {showSuggestions && searchQuery.length > 2 && searchResults.length === 0 && !loading && (
+                <View style={styles.noResultsContainer}>
+                  <Text style={styles.noResultsText}>
+                    No locations found. Try a different search term.
+                  </Text>
+                </View>
+              )}
             </View>
 
-            {/* Birth Country Input */}
-            <View style={styles.inputSection}>
-              <Text style={styles.inputLabel}>Birth Country</Text>
-              <TouchableOpacity 
-                style={[
-                  styles.inputWrapper,
-                  countryFocused && styles.inputWrapperFocused
-                ]}
-                activeOpacity={1}
-                onPress={() => countryInputRef.current?.focus()}
-              >
-                <MapPin size={20} color={countryFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
-                <TextInput
-                  ref={countryInputRef}
-                  style={styles.input}
-                  placeholder="Enter your birth country"
-                  placeholderTextColor="#9CA3AF"
-                  value={country}
-                  onChangeText={setCountry}
-                  onFocus={() => setCountryFocused(true)}
-                  onBlur={() => setCountryFocused(false)}
-                  autoCorrect={false}
-                />
-              </TouchableOpacity>
-            </View>
+            {/* Selected Location Display */}
+            {selectedLocation && (
+              <View style={styles.selectedLocationContainer}>
+                <Text style={styles.selectedLocationLabel}>Selected Location:</Text>
+                <View style={styles.selectedLocationCard}>
+                  <MapPin size={20} color="#22C55E" />
+                  <View style={styles.selectedLocationText}>
+                    <Text style={styles.selectedLocationName}>
+                      {selectedLocation.name}
+                      {selectedLocation.admin1 && `, ${selectedLocation.admin1}`}
+                    </Text>
+                    <Text style={styles.selectedLocationCountry}>{selectedLocation.country}</Text>
+                    <Text style={styles.selectedLocationCoords}>
+                      {selectedLocation.latitude.toFixed(4)}°, {selectedLocation.longitude.toFixed(4)}°
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
 
             {/* Popular Cities Quick Select */}
-            {!showSuggestions && (
+            {!showSuggestions && !selectedLocation && (
               <View style={styles.popularCitiesSection}>
                 <Text style={styles.popularCitiesTitle}>Popular Cities</Text>
                 <View style={styles.popularCitiesGrid}>
-                  {popularCities.slice(0, 6).map((cityData, index) => (
+                  {popularCities.map((city, index) => (
                     <TouchableOpacity
                       key={index}
                       style={styles.popularCityButton}
-                      onPress={() => handleCitySelection(cityData)}
+                      onPress={() => handlePopularCitySelection(city)}
                     >
-                      <Text style={styles.popularCityText}>{cityData.city}</Text>
-                      <Text style={styles.popularCountryText}>{cityData.country}</Text>
+                      <Text style={styles.popularCityText}>{city.name}</Text>
+                      <Text style={styles.popularCountryText}>{city.country}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -295,11 +378,11 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           <TouchableOpacity 
             style={[
               styles.continueButton, 
-              (!city.trim() || !country.trim()) && styles.continueButtonDisabled,
-              loading && styles.continueButtonDisabled
+              !selectedLocation && styles.continueButtonDisabled,
+              saving && styles.continueButtonDisabled
             ]}
             onPress={handleSaveBirthLocation}
-            disabled={!city.trim() || !country.trim() || loading}
+            disabled={!selectedLocation || saving}
           >
             <LinearGradient
               colors={['#8A2BE2', '#6d28d9']}
@@ -307,7 +390,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
               end={{ x: 1, y: 0 }}
               style={styles.continueButtonGradient}
             >
-              {loading ? (
+              {saving ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
@@ -413,6 +496,23 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    gap: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#EF4444',
+    flex: 1,
+  },
   inputSection: {
     marginBottom: 24,
     position: 'relative',
@@ -453,6 +553,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#1F2937',
+  },
+  loadingIcon: {
+    marginLeft: 8,
   },
   suggestionsContainer: {
     position: 'absolute',
@@ -499,6 +602,70 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: '#6B7280',
+  },
+  noResultsContainer: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  noResultsText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  selectedLocationContainer: {
+    marginBottom: 24,
+  },
+  selectedLocationLabel: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#374151',
+    marginBottom: 12,
+  },
+  selectedLocationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#22C55E',
+    gap: 12,
+  },
+  selectedLocationText: {
+    flex: 1,
+  },
+  selectedLocationName: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#1F2937',
+  },
+  selectedLocationCountry: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  selectedLocationCoords: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#22C55E',
+    marginTop: 4,
   },
   popularCitiesSection: {
     marginBottom: 24,
