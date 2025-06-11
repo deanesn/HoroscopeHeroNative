@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, ChevronRight, ArrowLeft, Search, AlertCircle } from 'lucide-react-native';
+import { MapPin, ChevronRight, ArrowLeft, Search, CircleAlert as AlertCircle } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
