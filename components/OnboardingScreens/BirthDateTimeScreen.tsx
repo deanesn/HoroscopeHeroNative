@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, Clock, ChevronRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase, getZodiacSignFromDate } from '@/lib/supabase';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -146,11 +146,15 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
       const birthDate = selectedDate.toISOString().split('T')[0];
       const birthTime = `${selectedTime.getHours().toString().padStart(2, '0')}:${selectedTime.getMinutes().toString().padStart(2, '0')}:00`;
 
+      // Calculate zodiac sign from birth date
+      const zodiacSign = getZodiacSignFromDate(selectedDate);
+
       const { error } = await supabase
         .from('profiles')
         .update({
           birth_date: birthDate,
           birth_time: birthTime,
+          zodiac_sign: zodiacSign,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -280,7 +284,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
           <View style={styles.titleContainer}>
             <Text style={styles.title}>When were you born?</Text>
             <Text style={styles.subtitle}>
-              Your birth date and time help us create your personalized horoscope
+              Your birth date and time help us create your personalized horoscope and determine your zodiac sign
             </Text>
           </View>
 
@@ -340,6 +344,16 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
               {renderNativeTimePicker()}
             </View>
+
+            {/* Zodiac Sign Preview */}
+            {selectedDate && (
+              <View style={styles.zodiacPreview}>
+                <Text style={styles.zodiacPreviewLabel}>Your Zodiac Sign:</Text>
+                <Text style={styles.zodiacPreviewSign}>
+                  {getZodiacSignFromDate(selectedDate)}
+                </Text>
+              </View>
+            )}
 
             {/* Info Note */}
             <View style={styles.infoContainer}>
@@ -529,6 +543,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#1F2937',
+  },
+  zodiacPreview: {
+    backgroundColor: '#F0F9FF',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#0EA5E9',
+  },
+  zodiacPreviewLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  zodiacPreviewSign: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#0EA5E9',
   },
   infoContainer: {
     backgroundColor: '#F0F9FF',
