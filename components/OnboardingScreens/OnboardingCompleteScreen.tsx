@@ -255,7 +255,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
               style={styles.getStartedButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF\" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
                   <Text style={styles.getStartedButtonText}>Get Started</Text>

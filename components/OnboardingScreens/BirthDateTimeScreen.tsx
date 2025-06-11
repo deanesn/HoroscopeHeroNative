@@ -310,7 +310,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
               style={styles.continueButtonGradient}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF\" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
                   <Text style={styles.continueButtonText}>Continue</Text>

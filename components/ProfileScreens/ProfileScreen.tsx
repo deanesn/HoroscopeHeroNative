@@ -155,7 +155,7 @@ export const ProfileScreen = () => {
               disabled={signingOut}
             >
               {signingOut ? (
-                <ActivityIndicator color="#FFFFFF\" size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
                   <LogOut size={20} color="#FFFFFF" />

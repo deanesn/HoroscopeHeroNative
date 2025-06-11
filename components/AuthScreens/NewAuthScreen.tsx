@@ -237,7 +237,7 @@ export const NewAuthScreen = () => {
                 style={styles.primaryButtonGradient}
               >
                 {loading ? (
-                  <ActivityIndicator color="#FFFFFF\" size="small" />
+                  <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
                   <Text style={styles.primaryButtonText}>
                     {isSignUp ? 'Create Account' : 'Sign In'}
