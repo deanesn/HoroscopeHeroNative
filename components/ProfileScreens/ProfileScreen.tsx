@@ -31,15 +31,20 @@ export const ProfileScreen = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
+        // Don't show alert for missing profile, just log it
+        if (error.code !== 'PGRST116') {
+          Alert.alert('Error', 'Failed to load profile information');
+        }
       } else {
         setProfile(data);
       }
     } catch (error) {
       console.error('Error:', error);
+      Alert.alert('Error', 'Failed to load profile information');
     } finally {
       setLoading(false);
     }
@@ -51,7 +56,9 @@ export const ProfileScreen = () => {
       await signOut();
     } catch (error) {
       console.error('Error signing out:', error);
-      Alert.alert('Error', 'Failed to sign out. Please try again.');
+      // Even if sign out fails, clear local state and navigate
+      setProfile(null);
+      router.replace('/auth');
     } finally {
       setSigningOut(false);
     }
