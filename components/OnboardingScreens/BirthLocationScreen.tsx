@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -49,6 +49,10 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [cityFocused, setCityFocused] = useState(false);
   const [countryFocused, setCountryFocused] = useState(false);
+  
+  // Refs for input focus handling
+  const cityInputRef = useRef<TextInput>(null);
+  const countryInputRef = useRef<TextInput>(null);
   
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -177,12 +181,17 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             {/* Birth City Input */}
             <View style={styles.inputSection}>
               <Text style={styles.inputLabel}>Birth City</Text>
-              <View style={[
-                styles.inputWrapper,
-                cityFocused && styles.inputWrapperFocused
-              ]}>
+              <TouchableOpacity 
+                style={[
+                  styles.inputWrapper,
+                  cityFocused && styles.inputWrapperFocused
+                ]}
+                activeOpacity={1}
+                onPress={() => cityInputRef.current?.focus()}
+              >
                 <Search size={20} color={cityFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
                 <TextInput
+                  ref={cityInputRef}
                   style={styles.input}
                   placeholder="Enter your birth city"
                   placeholderTextColor="#9CA3AF"
@@ -202,7 +211,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   }}
                   autoCorrect={false}
                 />
-              </View>
+              </TouchableOpacity>
 
               {/* City Suggestions */}
               {showSuggestions && filteredCities.length > 0 && (
@@ -229,12 +238,17 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             {/* Birth Country Input */}
             <View style={styles.inputSection}>
               <Text style={styles.inputLabel}>Birth Country</Text>
-              <View style={[
-                styles.inputWrapper,
-                countryFocused && styles.inputWrapperFocused
-              ]}>
+              <TouchableOpacity 
+                style={[
+                  styles.inputWrapper,
+                  countryFocused && styles.inputWrapperFocused
+                ]}
+                activeOpacity={1}
+                onPress={() => countryInputRef.current?.focus()}
+              >
                 <MapPin size={20} color={countryFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
                 <TextInput
+                  ref={countryInputRef}
                   style={styles.input}
                   placeholder="Enter your birth country"
                   placeholderTextColor="#9CA3AF"
@@ -244,7 +258,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   onBlur={() => setCountryFocused(false)}
                   autoCorrect={false}
                 />
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Popular Cities Quick Select */}
