@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
-  FlatList,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, Clock, ChevronRight, ArrowLeft } from 'lucide-react-native';
@@ -25,6 +25,16 @@ import Animated, {
   Easing
 } from 'react-native-reanimated';
 
+// Import native date picker for iOS/Android
+let DateTimePicker: any = null;
+if (Platform.OS !== 'web') {
+  try {
+    DateTimePicker = require('@react-native-community/datetimepicker').default;
+  } catch (error) {
+    console.warn('DateTimePicker not available:', error);
+  }
+}
+
 const { width, height } = Dimensions.get('window');
 
 interface BirthDateTimeScreenProps {
@@ -34,10 +44,14 @@ interface BirthDateTimeScreenProps {
 
 export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<{ hour: number; minute: number } | null>(null);
+  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  
+  // Web-specific states
+  const [webDateInput, setWebDateInput] = useState('');
+  const [webTimeInput, setWebTimeInput] = useState('');
   
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -69,45 +83,50 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     });
   };
 
-  const formatTime = (hour: number, minute: number) => {
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    const displayMinute = minute.toString().padStart(2, '0');
-    return `${displayHour}:${displayMinute} ${period}`;
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
-  const generateDateOptions = () => {
-    const dates = [];
-    const today = new Date();
-    const startYear = today.getFullYear() - 100;
-    const endYear = today.getFullYear() - 13; // Minimum age 13
-
-    // Generate a reasonable number of recent dates (last 30 years)
-    const recentStartYear = Math.max(startYear, endYear - 30);
-    
-    for (let year = endYear; year >= recentStartYear; year--) {
-      for (let month = 11; month >= 0; month--) {
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        for (let day = daysInMonth; day >= 1; day--) {
-          const date = new Date(year, month, day);
-          if (date <= today) {
-            dates.push(date);
-          }
-        }
-      }
+  // Native date picker handlers
+  const onDateChange = (event: any, date?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
     }
-    return dates;
+    if (date) {
+      setSelectedDate(date);
+    }
   };
 
-  const generateTimeOptions = () => {
-    const times = [];
-    // Generate time options in 15-minute intervals for better performance
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        times.push({ hour, minute });
-      }
+  const onTimeChange = (event: any, date?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowTimePicker(false);
     }
-    return times;
+    if (date) {
+      setSelectedTime(date);
+    }
+  };
+
+  // Web input handlers
+  const handleWebDateChange = (dateString: string) => {
+    setWebDateInput(dateString);
+    if (dateString) {
+      const date = new Date(dateString);
+      setSelectedDate(date);
+    }
+  };
+
+  const handleWebTimeChange = (timeString: string) => {
+    setWebTimeInput(timeString);
+    if (timeString) {
+      const [hours, minutes] = timeString.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      setSelectedTime(date);
+    }
   };
 
   const handleSaveBirthInfo = async () => {
@@ -125,7 +144,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     try {
       // Format date and time for database
       const birthDate = selectedDate.toISOString().split('T')[0];
-      const birthTime = `${selectedTime.hour.toString().padStart(2, '0')}:${selectedTime.minute.toString().padStart(2, '0')}:00`;
+      const birthTime = `${selectedTime.getHours().toString().padStart(2, '0')}:${selectedTime.getMinutes().toString().padStart(2, '0')}:00`;
 
       const { error } = await supabase
         .from('profiles')
@@ -154,48 +173,102 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     transform: [{ translateY: formTranslateY.value }],
   }));
 
-  const dateOptions = generateDateOptions();
-  const timeOptions = generateTimeOptions();
+  // Get minimum and maximum dates for native picker
+  const getMinDate = () => {
+    const minDate = new Date();
+    minDate.setFullYear(minDate.getFullYear() - 100);
+    return minDate;
+  };
 
-  const renderDateItem = ({ item: date, index }: { item: Date; index: number }) => (
-    <TouchableOpacity
-      style={[
-        styles.pickerItem,
-        selectedDate?.getTime() === date.getTime() && styles.pickerItemSelected
-      ]}
-      onPress={() => {
-        setSelectedDate(date);
-        setShowDatePicker(false);
-      }}
-    >
-      <Text style={[
-        styles.pickerItemText,
-        selectedDate?.getTime() === date.getTime() && styles.pickerItemTextSelected
-      ]}>
-        {formatDate(date)}
-      </Text>
-    </TouchableOpacity>
-  );
+  const getMaxDate = () => {
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() - 13);
+    return maxDate;
+  };
 
-  const renderTimeItem = ({ item: time, index }: { item: { hour: number; minute: number }; index: number }) => (
-    <TouchableOpacity
-      style={[
-        styles.pickerItem,
-        selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemSelected
-      ]}
-      onPress={() => {
-        setSelectedTime(time);
-        setShowTimePicker(false);
-      }}
-    >
-      <Text style={[
-        styles.pickerItemText,
-        selectedTime?.hour === time.hour && selectedTime?.minute === time.minute && styles.pickerItemTextSelected
-      ]}>
-        {formatTime(time.hour, time.minute)}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderNativeDatePicker = () => {
+    if (Platform.OS === 'web' || !DateTimePicker) {
+      return (
+        <View style={styles.webInputContainer}>
+          <TextInput
+            style={styles.webInput}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor="#9CA3AF"
+            value={webDateInput}
+            onChangeText={handleWebDateChange}
+            keyboardType="numeric"
+          />
+        </View>
+      );
+    }
+
+    return (
+      <>
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate || getMaxDate()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onDateChange}
+            minimumDate={getMinDate()}
+            maximumDate={getMaxDate()}
+            style={Platform.OS === 'ios' ? styles.iosDatePicker : undefined}
+          />
+        )}
+        {Platform.OS === 'ios' && showDatePicker && (
+          <View style={styles.iosPickerButtons}>
+            <TouchableOpacity
+              style={styles.iosPickerButton}
+              onPress={() => setShowDatePicker(false)}
+            >
+              <Text style={styles.iosPickerButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </>
+    );
+  };
+
+  const renderNativeTimePicker = () => {
+    if (Platform.OS === 'web' || !DateTimePicker) {
+      return (
+        <View style={styles.webInputContainer}>
+          <TextInput
+            style={styles.webInput}
+            placeholder="HH:MM"
+            placeholderTextColor="#9CA3AF"
+            value={webTimeInput}
+            onChangeText={handleWebTimeChange}
+            keyboardType="numeric"
+          />
+        </View>
+      );
+    }
+
+    return (
+      <>
+        {showTimePicker && (
+          <DateTimePicker
+            value={selectedTime || new Date()}
+            mode="time"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onTimeChange}
+            style={Platform.OS === 'ios' ? styles.iosDatePicker : undefined}
+          />
+        )}
+        {Platform.OS === 'ios' && showTimePicker && (
+          <View style={styles.iosPickerButtons}>
+            <TouchableOpacity
+              style={styles.iosPickerButton}
+              onPress={() => setShowTimePicker(false)}
+            >
+              <Text style={styles.iosPickerButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -239,7 +312,13 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
               <Text style={styles.inputLabel}>Birth Date</Text>
               <TouchableOpacity 
                 style={[styles.inputButton, selectedDate && styles.inputButtonSelected]}
-                onPress={() => setShowDatePicker(!showDatePicker)}
+                onPress={() => {
+                  if (Platform.OS === 'web' || !DateTimePicker) {
+                    // For web, focus on the input field
+                    return;
+                  }
+                  setShowDatePicker(true);
+                }}
               >
                 <Calendar size={20} color={selectedDate ? '#8A2BE2' : '#9CA3AF'} />
                 <Text style={[
@@ -248,37 +327,12 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                 ]}>
                   {selectedDate ? formatDate(selectedDate) : 'Select your birth date'}
                 </Text>
-                <ChevronRight size={20} color="#9CA3AF" />
+                {Platform.OS !== 'web' && DateTimePicker && (
+                  <ChevronRight size={20} color="#9CA3AF" />
+                )}
               </TouchableOpacity>
 
-              {showDatePicker && (
-                <View style={styles.pickerContainer}>
-                  <View style={styles.pickerHeader}>
-                    <Text style={styles.pickerHeaderText}>Select Birth Date</Text>
-                    <TouchableOpacity 
-                      style={styles.pickerCloseButton}
-                      onPress={() => setShowDatePicker(false)}
-                    >
-                      <Text style={styles.pickerCloseText}>Done</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <FlatList
-                    data={dateOptions}
-                    renderItem={renderDateItem}
-                    keyExtractor={(item, index) => `date-${index}`}
-                    style={styles.picker}
-                    showsVerticalScrollIndicator={true}
-                    getItemLayout={(data, index) => ({
-                      length: 48,
-                      offset: 48 * index,
-                      index,
-                    })}
-                    initialNumToRender={10}
-                    maxToRenderPerBatch={20}
-                    windowSize={10}
-                  />
-                </View>
-              )}
+              {renderNativeDatePicker()}
             </View>
 
             {/* Birth Time Selection */}
@@ -286,46 +340,27 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
               <Text style={styles.inputLabel}>Birth Time</Text>
               <TouchableOpacity 
                 style={[styles.inputButton, selectedTime && styles.inputButtonSelected]}
-                onPress={() => setShowTimePicker(!showTimePicker)}
+                onPress={() => {
+                  if (Platform.OS === 'web' || !DateTimePicker) {
+                    // For web, focus on the input field
+                    return;
+                  }
+                  setShowTimePicker(true);
+                }}
               >
                 <Clock size={20} color={selectedTime ? '#8A2BE2' : '#9CA3AF'} />
                 <Text style={[
                   styles.inputButtonText,
                   selectedTime && styles.inputButtonTextSelected
                 ]}>
-                  {selectedTime ? formatTime(selectedTime.hour, selectedTime.minute) : 'Select your birth time'}
+                  {selectedTime ? formatTime(selectedTime) : 'Select your birth time'}
                 </Text>
-                <ChevronRight size={20} color="#9CA3AF" />
+                {Platform.OS !== 'web' && DateTimePicker && (
+                  <ChevronRight size={20} color="#9CA3AF" />
+                )}
               </TouchableOpacity>
 
-              {showTimePicker && (
-                <View style={styles.pickerContainer}>
-                  <View style={styles.pickerHeader}>
-                    <Text style={styles.pickerHeaderText}>Select Birth Time</Text>
-                    <TouchableOpacity 
-                      style={styles.pickerCloseButton}
-                      onPress={() => setShowTimePicker(false)}
-                    >
-                      <Text style={styles.pickerCloseText}>Done</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <FlatList
-                    data={timeOptions}
-                    renderItem={renderTimeItem}
-                    keyExtractor={(item, index) => `time-${index}`}
-                    style={styles.picker}
-                    showsVerticalScrollIndicator={true}
-                    getItemLayout={(data, index) => ({
-                      length: 48,
-                      offset: 48 * index,
-                      index,
-                    })}
-                    initialNumToRender={10}
-                    maxToRenderPerBatch={20}
-                    windowSize={10}
-                  />
-                </View>
-              )}
+              {renderNativeTimePicker()}
             </View>
 
             {/* Info Note */}
@@ -503,70 +538,38 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     fontFamily: 'Inter-Medium',
   },
-  pickerContainer: {
+  webInputContainer: {
     marginTop: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+  },
+  webInput: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    maxHeight: 300,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  pickerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-  },
-  pickerHeaderText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#374151',
-  },
-  pickerCloseButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#8A2BE2',
-    borderRadius: 8,
-  },
-  pickerCloseText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#FFFFFF',
-  },
-  picker: {
-    maxHeight: 250,
-  },
-  pickerItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    height: 48,
-    justifyContent: 'center',
-  },
-  pickerItemSelected: {
-    backgroundColor: '#F3E8FF',
-  },
-  pickerItemText: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#374151',
+    color: '#1F2937',
   },
-  pickerItemTextSelected: {
-    color: '#8A2BE2',
+  iosDatePicker: {
+    backgroundColor: '#FFFFFF',
+    marginTop: 12,
+  },
+  iosPickerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingTop: 12,
+  },
+  iosPickerButton: {
+    backgroundColor: '#8A2BE2',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  iosPickerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
   },
   infoContainer: {
