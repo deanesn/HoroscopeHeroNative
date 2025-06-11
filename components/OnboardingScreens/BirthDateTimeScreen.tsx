@@ -208,22 +208,11 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
           <DateTimePicker
             value={selectedDate || getMaxDate()}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={Platform.OS === 'ios' ? 'compact' : 'default'}
             onChange={onDateChange}
             minimumDate={getMinDate()}
             maximumDate={getMaxDate()}
-            style={Platform.OS === 'ios' ? styles.iosDatePicker : undefined}
           />
-        )}
-        {Platform.OS === 'ios' && showDatePicker && (
-          <View style={styles.iosPickerButtons}>
-            <TouchableOpacity
-              style={styles.iosPickerButton}
-              onPress={() => setShowDatePicker(false)}
-            >
-              <Text style={styles.iosPickerButtonText}>Done</Text>
-            </TouchableOpacity>
-          </View>
         )}
       </>
     );
@@ -251,20 +240,9 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
           <DateTimePicker
             value={selectedTime || new Date()}
             mode="time"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display={Platform.OS === 'ios' ? 'compact' : 'default'}
             onChange={onTimeChange}
-            style={Platform.OS === 'ios' ? styles.iosDatePicker : undefined}
           />
-        )}
-        {Platform.OS === 'ios' && showTimePicker && (
-          <View style={styles.iosPickerButtons}>
-            <TouchableOpacity
-              style={styles.iosPickerButton}
-              onPress={() => setShowTimePicker(false)}
-            >
-              <Text style={styles.iosPickerButtonText}>Done</Text>
-            </TouchableOpacity>
-          </View>
         )}
       </>
     );
@@ -551,26 +529,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: '#1F2937',
-  },
-  iosDatePicker: {
-    backgroundColor: '#FFFFFF',
-    marginTop: 12,
-  },
-  iosPickerButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: 12,
-  },
-  iosPickerButton: {
-    backgroundColor: '#8A2BE2',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  iosPickerButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Inter-Medium',
   },
   infoContainer: {
     backgroundColor: '#F0F9FF',
