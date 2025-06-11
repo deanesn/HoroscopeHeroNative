@@ -344,7 +344,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
               </View>
             )}
 
-            {/* Popular Cities Quick Select */}
+            {/* Popular Cities Quick Select - Only show when not searching */}
             {!showSuggestions && !selectedLocation && (
               <View style={styles.popularCitiesSection}>
                 <Text style={styles.popularCitiesTitle}>Popular Cities</Text>
@@ -363,13 +363,15 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
               </View>
             )}
 
-            {/* Info Note */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                🌍 We use your birth location to calculate the exact planetary positions at the time of your birth. 
-                This ensures your horoscope is as accurate as possible.
-              </Text>
-            </View>
+            {/* Info Note - Only show when not searching to prevent overlap */}
+            {!showSuggestions && (
+              <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>
+                  🌍 We use your birth location to calculate the exact planetary positions at the time of your birth. 
+                  This ensures your horoscope is as accurate as possible.
+                </Text>
+              </View>
+            )}
           </View>
         </Animated.View>
 
