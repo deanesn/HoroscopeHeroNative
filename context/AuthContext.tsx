@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .from('profiles')
                 .select('is_onboarding_complete')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
               if (profileError) {
                 console.error('Error fetching profile:', profileError);
@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .from('profiles')
                 .select('is_onboarding_complete')
                 .eq('id', session.user.id)
-                .single();
+                .maybeSingle();
 
               if (error) {
                 console.error('Error fetching profile:', error);
