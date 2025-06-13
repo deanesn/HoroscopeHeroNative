@@ -10,6 +10,7 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MapPin, ChevronRight, ArrowLeft, Search, CircleAlert as AlertCircle } from 'lucide-react-native';
@@ -156,6 +157,14 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
     setShowSuggestions(false);
     setSearchResults([]);
     setError(null);
+    
+    // Dismiss keyboard immediately to prevent onBlur conflicts
+    if (Platform.OS !== 'web') {
+      Keyboard.dismiss();
+    } else {
+      // For web, blur the input
+      searchInputRef.current?.blur();
+    }
   };
 
   const handlePopularCitySelection = (city: typeof popularCities[0]) => {
@@ -318,8 +327,8 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   }}
                   onBlur={() => {
                     setSearchFocused(false);
-                    // Delay hiding suggestions to allow for selection
-                    setTimeout(() => setShowSuggestions(false), 200);
+                    // Remove the setTimeout to prevent race conditions
+                    setShowSuggestions(false);
                   }}
                   autoCorrect={false}
                   autoCapitalize="words"
