@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { CircleCheck as CheckCircle, Star, Sparkles, ChevronRight, Calendar, MapPin, Clock } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, ChevronRight, Calendar, MapPin, Clock } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase, Profile } from '@/lib/supabase';
@@ -43,9 +43,6 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
   const checkScale = useSharedValue(0);
   const contentOpacity = useSharedValue(0);
   const contentTranslateY = useSharedValue(50);
-  const sparkle1Opacity = useSharedValue(0);
-  const sparkle2Opacity = useSharedValue(0);
-  const sparkle3Opacity = useSharedValue(0);
 
   React.useEffect(() => {
     // Fetch profile data
@@ -72,25 +69,6 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
       damping: 15,
       stiffness: 100,
     }));
-
-    // Animate sparkles with staggered timing
-    sparkle1Opacity.value = withDelay(600, withSequence(
-      withTiming(1, { duration: 400 }),
-      withTiming(0.3, { duration: 800 }),
-      withTiming(1, { duration: 400 })
-    ));
-
-    sparkle2Opacity.value = withDelay(800, withSequence(
-      withTiming(1, { duration: 400 }),
-      withTiming(0.3, { duration: 800 }),
-      withTiming(1, { duration: 400 })
-    ));
-
-    sparkle3Opacity.value = withDelay(1000, withSequence(
-      withTiming(1, { duration: 400 }),
-      withTiming(0.3, { duration: 800 }),
-      withTiming(1, { duration: 400 })
-    ));
   }, []);
 
   const fetchProfile = async () => {
@@ -171,18 +149,6 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
     transform: [{ translateY: contentTranslateY.value }],
   }));
 
-  const sparkle1AnimatedStyle = useAnimatedStyle(() => ({
-    opacity: sparkle1Opacity.value,
-  }));
-
-  const sparkle2AnimatedStyle = useAnimatedStyle(() => ({
-    opacity: sparkle2Opacity.value,
-  }));
-
-  const sparkle3AnimatedStyle = useAnimatedStyle(() => ({
-    opacity: sparkle3Opacity.value,
-  }));
-
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -213,23 +179,12 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
               <CheckCircle size={80} color="#22C55E" />
             </View>
           </Animated.View>
-
-          {/* Floating Sparkles */}
-          <Animated.View style={[styles.sparkle, styles.sparkle1, sparkle1AnimatedStyle]}>
-            <Sparkles size={24} color="#FFD700" />
-          </Animated.View>
-          <Animated.View style={[styles.sparkle, styles.sparkle2, sparkle2AnimatedStyle]}>
-            <Star size={20} color="#8A2BE2" />
-          </Animated.View>
-          <Animated.View style={[styles.sparkle, styles.sparkle3, sparkle3AnimatedStyle]}>
-            <Sparkles size={18} color="#FF6B9D" />
-          </Animated.View>
         </View>
 
         {/* Content */}
         <Animated.View style={[styles.content, contentAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: themeColors.text }]}>Welcome to the Stars!</Text>
+            <Text style={[styles.title, { color: themeColors.text }]}>Welcome to HoroscopeHero!</Text>
             <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your cosmic profile is complete. Get ready to discover personalized insights about your celestial journey!
             </Text>
@@ -245,7 +200,6 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
                 shadowColor: themeColors.shadowColor
               }]}>
                 <View style={styles.zodiacHeader}>
-                  <Star size={24} color={themeColors.primary} />
                   <Text style={[styles.zodiacSign, { color: themeColors.primary }]}>{profile.zodiac_sign || 'Unknown'}</Text>
                 </View>
 
@@ -290,7 +244,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             
             <View style={[styles.featureItem, { borderBottomColor: themeColors.border }]}>
               <View style={[styles.featureIcon, { backgroundColor: themeColors.accentBackground }]}>
-                <Star size={24} color={themeColors.primary} />
+                <CheckCircle size={24} color={themeColors.primary} />
               </View>
               <View style={styles.featureText}>
                 <Text style={[styles.featureTitle, { color: themeColors.text }]}>Daily Horoscopes</Text>
@@ -302,7 +256,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
 
             <View style={[styles.featureItem, { borderBottomColor: themeColors.border }]}>
               <View style={[styles.featureIcon, { backgroundColor: themeColors.accentBackground }]}>
-                <Sparkles size={24} color="#22C55E" />
+                <CheckCircle size={24} color="#22C55E" />
               </View>
               <View style={styles.featureText}>
                 <Text style={[styles.featureTitle, { color: themeColors.text }]}>Cosmic Compatibility</Text>
@@ -330,7 +284,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             borderColor: themeColors.primary
           }]}>
             <Text style={[styles.celebrationText, { color: themeColors.text }]}>
-              ✨ Your cosmic adventure begins now! ✨
+              Your cosmic adventure begins now!
             </Text>
           </View>
         </Animated.View>
@@ -430,21 +384,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
-  },
-  sparkle: {
-    position: 'absolute',
-  },
-  sparkle1: {
-    top: 20,
-    right: 40,
-  },
-  sparkle2: {
-    bottom: 30,
-    left: 30,
-  },
-  sparkle3: {
-    top: 60,
-    left: 20,
   },
   content: {
     flex: 1,
