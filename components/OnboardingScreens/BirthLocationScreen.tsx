@@ -327,8 +327,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   }}
                   onBlur={() => {
                     setSearchFocused(false);
-                    // Remove the setTimeout to prevent race conditions
-                    setShowSuggestions(false);
+                    // REMOVED: setShowSuggestions(false); - This was causing the race condition
                   }}
                   autoCorrect={false}
                   autoCapitalize="words"
