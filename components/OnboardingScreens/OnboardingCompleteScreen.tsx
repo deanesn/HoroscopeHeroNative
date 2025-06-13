@@ -186,7 +186,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#1A1A2E', '#16213E', '#0F3460']}
+        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.background}
@@ -202,7 +202,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: '100%' }]} />
             </View>
-            <Text style={styles.progressText}>Complete!</Text>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>Complete!</Text>
           </View>
         </View>
 
@@ -229,8 +229,8 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
         {/* Content */}
         <Animated.View style={[styles.content, contentAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Welcome to the Stars!</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: themeColors.text }]}>Welcome to the Stars!</Text>
+            <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your cosmic profile is complete. Get ready to discover personalized insights about your celestial journey!
             </Text>
           </View>
@@ -238,19 +238,22 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
           {/* Profile Summary */}
           {profile && (
             <View style={styles.profileSummaryContainer}>
-              <Text style={styles.profileSummaryTitle}>Your Cosmic Profile</Text>
+              <Text style={[styles.profileSummaryTitle, { color: themeColors.text }]}>Your Cosmic Profile</Text>
               
-              <View style={styles.profileSummaryCard}>
+              <View style={[styles.profileSummaryCard, { 
+                backgroundColor: themeColors.surface,
+                shadowColor: themeColors.shadowColor
+              }]}>
                 <View style={styles.zodiacHeader}>
-                  <Star size={24} color="#8A2BE2" />
-                  <Text style={styles.zodiacSign}>{profile.zodiac_sign || 'Unknown'}</Text>
+                  <Star size={24} color={themeColors.primary} />
+                  <Text style={[styles.zodiacSign, { color: themeColors.primary }]}>{profile.zodiac_sign || 'Unknown'}</Text>
                 </View>
 
                 <View style={styles.profileDetails}>
                   {profile.birth_date && (
                     <View style={styles.profileDetailItem}>
-                      <Calendar size={16} color="#6B7280" />
-                      <Text style={styles.profileDetailText}>
+                      <Calendar size={16} color={themeColors.textSecondary} />
+                      <Text style={[styles.profileDetailText, { color: themeColors.textSecondary }]}>
                         Born {formatDate(profile.birth_date)}
                         {profile.birth_time && ` at ${formatTime(profile.birth_time)}`}
                       </Text>
@@ -259,8 +262,8 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
 
                   {profile.birth_city && profile.birth_country && (
                     <View style={styles.profileDetailItem}>
-                      <MapPin size={16} color="#6B7280" />
-                      <Text style={styles.profileDetailText}>
+                      <MapPin size={16} color={themeColors.textSecondary} />
+                      <Text style={[styles.profileDetailText, { color: themeColors.textSecondary }]}>
                         {profile.birth_city}, {profile.birth_country}
                       </Text>
                     </View>
@@ -268,8 +271,8 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
 
                   {profile.birth_latitude && profile.birth_longitude && (
                     <View style={styles.profileDetailItem}>
-                      <Clock size={16} color="#6B7280" />
-                      <Text style={styles.profileDetailText}>
+                      <Clock size={16} color={themeColors.textSecondary} />
+                      <Text style={[styles.profileDetailText, { color: themeColors.textSecondary }]}>
                         {profile.birth_latitude.toFixed(4)}°, {profile.birth_longitude.toFixed(4)}°
                       </Text>
                     </View>
@@ -279,48 +282,54 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             </View>
           )}
 
-          <View style={styles.featuresContainer}>
-            <Text style={styles.featuresTitle}>What's Next?</Text>
+          <View style={[styles.featuresContainer, { 
+            backgroundColor: themeColors.surface,
+            shadowColor: themeColors.shadowColor
+          }]}>
+            <Text style={[styles.featuresTitle, { color: themeColors.text }]}>What's Next?</Text>
             
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
-                <Star size={24} color="#8A2BE2" />
+            <View style={[styles.featureItem, { borderBottomColor: themeColors.border }]}>
+              <View style={[styles.featureIcon, { backgroundColor: themeColors.accentBackground }]}>
+                <Star size={24} color={themeColors.primary} />
               </View>
               <View style={styles.featureText}>
-                <Text style={styles.featureTitle}>Daily Horoscopes</Text>
-                <Text style={styles.featureDescription}>
+                <Text style={[styles.featureTitle, { color: themeColors.text }]}>Daily Horoscopes</Text>
+                <Text style={[styles.featureDescription, { color: themeColors.textSecondary }]}>
                   Personalized daily insights based on your unique birth chart
                 </Text>
               </View>
             </View>
 
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
+            <View style={[styles.featureItem, { borderBottomColor: themeColors.border }]}>
+              <View style={[styles.featureIcon, { backgroundColor: themeColors.accentBackground }]}>
                 <Sparkles size={24} color="#22C55E" />
               </View>
               <View style={styles.featureText}>
-                <Text style={styles.featureTitle}>Cosmic Compatibility</Text>
-                <Text style={styles.featureDescription}>
+                <Text style={[styles.featureTitle, { color: themeColors.text }]}>Cosmic Compatibility</Text>
+                <Text style={[styles.featureDescription, { color: themeColors.textSecondary }]}>
                   Discover your compatibility with friends, family, and partners
                 </Text>
               </View>
             </View>
 
-            <View style={styles.featureItem}>
-              <View style={styles.featureIcon}>
+            <View style={[styles.featureItem, { borderBottomColor: themeColors.border }]}>
+              <View style={[styles.featureIcon, { backgroundColor: themeColors.accentBackground }]}>
                 <CheckCircle size={24} color="#FF6B9D" />
               </View>
               <View style={styles.featureText}>
-                <Text style={styles.featureTitle}>Planetary Insights</Text>
-                <Text style={styles.featureDescription}>
+                <Text style={[styles.featureTitle, { color: themeColors.text }]}>Planetary Insights</Text>
+                <Text style={[styles.featureDescription, { color: themeColors.textSecondary }]}>
                   Track planetary movements and their influence on your life
                 </Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.celebrationContainer}>
-            <Text style={styles.celebrationText}>
+          <View style={[styles.celebrationContainer, { 
+            backgroundColor: themeColors.accentBackground,
+            borderColor: themeColors.primary
+          }]}>
+            <Text style={[styles.celebrationText, { color: themeColors.text }]}>
               ✨ Your cosmic adventure begins now! ✨
             </Text>
           </View>
@@ -334,7 +343,7 @@ export const OnboardingCompleteScreen = ({ onNext, onBack }: OnboardingCompleteS
             disabled={loading}
           >
             <LinearGradient
-              colors={['#8A2BE2', '#6d28d9']}
+              colors={[themeColors.primary, themeColors.gradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.getStartedButtonGradient}
@@ -393,7 +402,6 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 8,
   },
   successContainer: {
@@ -449,7 +457,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 16,
     letterSpacing: 0.5,
@@ -457,7 +464,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 26,
     paddingHorizontal: 20,
@@ -468,15 +474,12 @@ const styles = StyleSheet.create({
   profileSummaryTitle: {
     fontSize: 20,
     fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 16,
   },
   profileSummaryCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 8,
@@ -495,7 +498,6 @@ const styles = StyleSheet.create({
   zodiacSign: {
     fontSize: 24,
     fontFamily: 'Inter-Bold',
-    color: '#8A2BE2',
   },
   profileDetails: {
     gap: 12,
@@ -508,15 +510,12 @@ const styles = StyleSheet.create({
   profileDetailText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
     flex: 1,
   },
   featuresContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 24,
     marginBottom: 24,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 10,
@@ -528,7 +527,6 @@ const styles = StyleSheet.create({
   featuresTitle: {
     fontSize: 20,
     fontFamily: 'Inter-SemiBold',
-    color: '#1F2937',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -538,13 +536,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
   },
   featureIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(138, 43, 226, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -555,27 +551,22 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#1F2937',
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
     lineHeight: 20,
   },
   celebrationContainer: {
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
   },
   celebrationText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#FFFFFF',
     textAlign: 'center',
     letterSpacing: 0.5,
   },

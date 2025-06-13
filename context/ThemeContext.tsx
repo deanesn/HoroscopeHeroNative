@@ -71,6 +71,9 @@ export const colors = {
     cardBorder: '#E5E7EB',
     gradientStart: '#9333EA',
     gradientEnd: '#6d28d9',
+    shadowColor: '#000000',
+    errorBackground: '#FEF2F2',
+    successBackground: '#F0FDF4',
   },
   dark: {
     background: '#1A1A2E',
@@ -87,5 +90,8 @@ export const colors = {
     cardBorder: '#404058',
     gradientStart: '#4C1D95',
     gradientEnd: '#5B21B6',
+    shadowColor: '#000000',
+    errorBackground: '#2D1B1B',
+    successBackground: '#1B2D1B',
   },
 };

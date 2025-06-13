@@ -204,7 +204,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#1A1A2E', '#16213E', '#0F3460']}
+        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.background}
@@ -225,45 +225,62 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: '60%' }]} />
             </View>
-            <Text style={styles.progressText}>3 of 5</Text>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>3 of 5</Text>
           </View>
         </View>
 
         {/* Content */}
         <Animated.View style={[styles.content, formAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Where were you born?</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: themeColors.text }]}>Where were you born?</Text>
+            <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your birth location helps us calculate accurate planetary positions for your astrological chart
             </Text>
           </View>
 
-          <View style={styles.formContainer}>
+          <View style={[styles.formContainer, { 
+            backgroundColor: themeColors.surface,
+            shadowColor: themeColors.shadowColor
+          }]}>
             {/* Error Message */}
             {error && (
-              <View style={styles.errorContainer}>
-                <AlertCircle size={16} color="#EF4444" />
-                <Text style={styles.errorText}>{error}</Text>
+              <View style={[styles.errorContainer, { 
+                backgroundColor: themeColors.errorBackground,
+                borderLeftColor: themeColors.error
+              }]}>
+                <AlertCircle size={16} color={themeColors.error} />
+                <Text style={[styles.errorText, { color: themeColors.error }]}>{error}</Text>
               </View>
             )}
 
             {/* Location Search Input */}
             <View style={styles.inputSection}>
-              <Text style={styles.inputLabel}>Search for your birth city</Text>
+              <Text style={[styles.inputLabel, { color: themeColors.text }]}>Search for your birth city</Text>
               <TouchableOpacity 
                 style={[
                   styles.inputWrapper,
-                  searchFocused && styles.inputWrapperFocused
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border
+                  },
+                  searchFocused && [
+                    styles.inputWrapperFocused,
+                    { 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      shadowColor: themeColors.primary
+                    }
+                  ]
                 ]}
                 activeOpacity={1}
                 onPress={() => searchInputRef.current?.focus()}
               >
-                <Search size={20} color={searchFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <Search size={20} color={searchFocused ? themeColors.primary : themeColors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   ref={searchInputRef}
-                  style={styles.input}
+                  style={[styles.input, { color: themeColors.text }]}
                   placeholder="Enter city name (e.g., New York, London)"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={themeColors.textSecondary}
                   value={searchQuery}
                   onChangeText={(text) => {
                     setSearchQuery(text);
@@ -286,27 +303,31 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   autoCapitalize="words"
                 />
                 {loading && (
-                  <ActivityIndicator size="small" color="#8A2BE2" style={styles.loadingIcon} />
+                  <ActivityIndicator size="small" color={themeColors.primary} style={styles.loadingIcon} />
                 )}
               </TouchableOpacity>
 
               {/* Search Results */}
               {showSuggestions && searchResults.length > 0 && (
-                <View style={styles.suggestionsContainer}>
+                <View style={[styles.suggestionsContainer, { 
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                  shadowColor: themeColors.shadowColor
+                }]}>
                   <ScrollView style={styles.suggestions} nestedScrollEnabled>
                     {searchResults.map((location, index) => (
                       <TouchableOpacity
                         key={index}
-                        style={styles.suggestionItem}
+                        style={[styles.suggestionItem, { borderBottomColor: themeColors.border }]}
                         onPress={() => handleLocationSelection(location)}
                       >
-                        <MapPin size={16} color="#8A2BE2" />
+                        <MapPin size={16} color={themeColors.primary} />
                         <View style={styles.suggestionText}>
-                          <Text style={styles.suggestionCity}>
+                          <Text style={[styles.suggestionCity, { color: themeColors.text }]}>
                             {location.name}
                             {location.admin1 && `, ${location.admin1}`}
                           </Text>
-                          <Text style={styles.suggestionCountry}>{location.country}</Text>
+                          <Text style={[styles.suggestionCountry, { color: themeColors.textSecondary }]}>{location.country}</Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -316,8 +337,12 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
 
               {/* No Results Message */}
               {showSuggestions && searchQuery.length > 2 && searchResults.length === 0 && !loading && (
-                <View style={styles.noResultsContainer}>
-                  <Text style={styles.noResultsText}>
+                <View style={[styles.noResultsContainer, { 
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                  shadowColor: themeColors.shadowColor
+                }]}>
+                  <Text style={[styles.noResultsText, { color: themeColors.textSecondary }]}>
                     No locations found. Try a different search term.
                   </Text>
                 </View>
@@ -327,16 +352,19 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             {/* Selected Location Display */}
             {selectedLocation && (
               <View style={styles.selectedLocationContainer}>
-                <Text style={styles.selectedLocationLabel}>Selected Location:</Text>
-                <View style={styles.selectedLocationCard}>
-                  <MapPin size={20} color="#22C55E" />
+                <Text style={[styles.selectedLocationLabel, { color: themeColors.text }]}>Selected Location:</Text>
+                <View style={[styles.selectedLocationCard, { 
+                  backgroundColor: themeColors.successBackground,
+                  borderColor: themeColors.success
+                }]}>
+                  <MapPin size={20} color={themeColors.success} />
                   <View style={styles.selectedLocationText}>
-                    <Text style={styles.selectedLocationName}>
+                    <Text style={[styles.selectedLocationName, { color: themeColors.text }]}>
                       {selectedLocation.name}
                       {selectedLocation.admin1 && `, ${selectedLocation.admin1}`}
                     </Text>
-                    <Text style={styles.selectedLocationCountry}>{selectedLocation.country}</Text>
-                    <Text style={styles.selectedLocationCoords}>
+                    <Text style={[styles.selectedLocationCountry, { color: themeColors.textSecondary }]}>{selectedLocation.country}</Text>
+                    <Text style={[styles.selectedLocationCoords, { color: themeColors.success }]}>
                       {selectedLocation.latitude.toFixed(4)}°, {selectedLocation.longitude.toFixed(4)}°
                     </Text>
                   </View>
@@ -347,16 +375,19 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             {/* Popular Cities Quick Select - Only show when not searching */}
             {!showSuggestions && !selectedLocation && (
               <View style={styles.popularCitiesSection}>
-                <Text style={styles.popularCitiesTitle}>Popular Cities</Text>
+                <Text style={[styles.popularCitiesTitle, { color: themeColors.text }]}>Popular Cities</Text>
                 <View style={styles.popularCitiesGrid}>
                   {popularCities.map((city, index) => (
                     <TouchableOpacity
                       key={index}
-                      style={styles.popularCityButton}
+                      style={[styles.popularCityButton, { 
+                        backgroundColor: themeColors.cardBackground,
+                        borderColor: themeColors.border
+                      }]}
                       onPress={() => handlePopularCitySelection(city)}
                     >
-                      <Text style={styles.popularCityText}>{city.name}</Text>
-                      <Text style={styles.popularCountryText}>{city.country}</Text>
+                      <Text style={[styles.popularCityText, { color: themeColors.text }]}>{city.name}</Text>
+                      <Text style={[styles.popularCountryText, { color: themeColors.textSecondary }]}>{city.country}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -365,8 +396,11 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
 
             {/* Info Note - Only show when not searching to prevent overlap */}
             {!showSuggestions && (
-              <View style={styles.infoContainer}>
-                <Text style={styles.infoText}>
+              <View style={[styles.infoContainer, { 
+                backgroundColor: themeColors.accentBackground,
+                borderLeftColor: themeColors.primary
+              }]}>
+                <Text style={[styles.infoText, { color: themeColors.text }]}>
                   🌍 We use your birth location to calculate the exact planetary positions at the time of your birth. 
                   This ensures your horoscope is as accurate as possible.
                 </Text>
@@ -387,7 +421,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
             disabled={!selectedLocation || saving}
           >
             <LinearGradient
-              colors={['#8A2BE2', '#6d28d9']}
+              colors={[themeColors.primary, themeColors.gradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.continueButtonGradient}
@@ -458,7 +492,6 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 8,
   },
   content: {
@@ -472,7 +505,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 12,
     letterSpacing: 0.5,
@@ -480,16 +512,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 10,
@@ -501,18 +530,15 @@ const styles = StyleSheet.create({
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF2F2',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
     gap: 8,
   },
   errorText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#EF4444',
     flex: 1,
   },
   inputSection: {
@@ -522,23 +548,17 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#374151',
     marginBottom: 12,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   inputWrapperFocused: {
-    borderColor: '#8A2BE2',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#8A2BE2',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -554,7 +574,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#1F2937',
   },
   loadingIcon: {
     marginLeft: 8,
@@ -565,13 +584,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     maxHeight: 200,
     overflow: 'hidden',
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -589,7 +605,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
     gap: 12,
   },
   suggestionText: {
@@ -598,24 +613,19 @@ const styles = StyleSheet.create({
   suggestionCity: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#1F2937',
   },
   suggestionCountry: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
   },
   noResultsContainer: {
     position: 'absolute',
     top: '100%',
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     padding: 16,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -627,7 +637,6 @@ const styles = StyleSheet.create({
   noResultsText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
     textAlign: 'center',
   },
   selectedLocationContainer: {
@@ -636,17 +645,14 @@ const styles = StyleSheet.create({
   selectedLocationLabel: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#374151',
     marginBottom: 12,
   },
   selectedLocationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDF4',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#22C55E',
     gap: 12,
   },
   selectedLocationText: {
@@ -655,18 +661,15 @@ const styles = StyleSheet.create({
   selectedLocationName: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#1F2937',
   },
   selectedLocationCountry: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
     marginTop: 2,
   },
   selectedLocationCoords: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
-    color: '#22C55E',
     marginTop: 4,
   },
   popularCitiesSection: {
@@ -675,7 +678,6 @@ const styles = StyleSheet.create({
   popularCitiesTitle: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#374151',
     marginBottom: 12,
   },
   popularCitiesGrid: {
@@ -684,36 +686,29 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   popularCityButton: {
-    backgroundColor: '#F3F4F6',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     minWidth: '30%',
     alignItems: 'center',
   },
   popularCityText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#374151',
   },
   popularCountryText: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
   },
   infoContainer: {
-    backgroundColor: '#F0F9FF',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#0EA5E9',
   },
   infoText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#0F172A',
     lineHeight: 20,
   },
   buttonContainer: {

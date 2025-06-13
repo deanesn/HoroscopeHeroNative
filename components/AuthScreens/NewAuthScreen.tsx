@@ -123,7 +123,7 @@ export const NewAuthScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <LinearGradient
-        colors={['#1A1A2E', '#16213E', '#0F3460']}
+        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.background}
@@ -150,19 +150,25 @@ export const NewAuthScreen = () => {
             </View>
           </Animated.View>
           
-          <Text style={styles.title}>Welcome to HoroscopeHero</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: themeColors.text }]}>Welcome to HoroscopeHero</Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
             {isSignUp ? 'Create your account to start your cosmic journey' : 'Sign in to continue your cosmic journey'}
           </Text>
         </View>
 
         {/* Form Section */}
-        <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
+        <Animated.View style={[styles.formContainer, formAnimatedStyle, { 
+          backgroundColor: themeColors.surface,
+          shadowColor: themeColors.shadowColor
+        }]}>
           <View style={styles.form}>
             {/* Error Message */}
             {formError && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{formError}</Text>
+              <View style={[styles.errorContainer, { 
+                backgroundColor: themeColors.errorBackground,
+                borderLeftColor: themeColors.error
+              }]}>
+                <Text style={[styles.errorText, { color: themeColors.error }]}>{formError}</Text>
               </View>
             )}
 
@@ -171,21 +177,32 @@ export const NewAuthScreen = () => {
               <>
                 {/* First Name Input */}
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>First Name</Text>
+                  <Text style={[styles.inputLabel, { color: themeColors.text }]}>First Name</Text>
                   <TouchableOpacity 
                     style={[
                       styles.inputWrapper,
-                      firstNameFocused && styles.inputWrapperFocused
+                      { 
+                        backgroundColor: themeColors.cardBackground,
+                        borderColor: themeColors.border
+                      },
+                      firstNameFocused && [
+                        styles.inputWrapperFocused,
+                        { 
+                          borderColor: themeColors.primary,
+                          backgroundColor: themeColors.surface,
+                          shadowColor: themeColors.primary
+                        }
+                      ]
                     ]}
                     activeOpacity={1}
                     onPress={() => firstNameRef.current?.focus()}
                   >
-                    <User size={20} color={firstNameFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                    <User size={20} color={firstNameFocused ? themeColors.primary : themeColors.textSecondary} style={styles.inputIcon} />
                     <TextInput
                       ref={firstNameRef}
-                      style={styles.input}
+                      style={[styles.input, { color: themeColors.text }]}
                       placeholder="Enter your first name"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={themeColors.textSecondary}
                       value={firstName}
                       onChangeText={setFirstName}
                       autoCapitalize="words"
@@ -201,21 +218,32 @@ export const NewAuthScreen = () => {
 
                 {/* Last Name Input */}
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Last Name</Text>
+                  <Text style={[styles.inputLabel, { color: themeColors.text }]}>Last Name</Text>
                   <TouchableOpacity 
                     style={[
                       styles.inputWrapper,
-                      lastNameFocused && styles.inputWrapperFocused
+                      { 
+                        backgroundColor: themeColors.cardBackground,
+                        borderColor: themeColors.border
+                      },
+                      lastNameFocused && [
+                        styles.inputWrapperFocused,
+                        { 
+                          borderColor: themeColors.primary,
+                          backgroundColor: themeColors.surface,
+                          shadowColor: themeColors.primary
+                        }
+                      ]
                     ]}
                     activeOpacity={1}
                     onPress={() => lastNameRef.current?.focus()}
                   >
-                    <User size={20} color={lastNameFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                    <User size={20} color={lastNameFocused ? themeColors.primary : themeColors.textSecondary} style={styles.inputIcon} />
                     <TextInput
                       ref={lastNameRef}
-                      style={styles.input}
+                      style={[styles.input, { color: themeColors.text }]}
                       placeholder="Enter your last name"
-                      placeholderTextColor="#9CA3AF"
+                      placeholderTextColor={themeColors.textSecondary}
                       value={lastName}
                       onChangeText={setLastName}
                       autoCapitalize="words"
@@ -233,21 +261,32 @@ export const NewAuthScreen = () => {
 
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email Address</Text>
+              <Text style={[styles.inputLabel, { color: themeColors.text }]}>Email Address</Text>
               <TouchableOpacity 
                 style={[
                   styles.inputWrapper,
-                  emailFocused && styles.inputWrapperFocused
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border
+                  },
+                  emailFocused && [
+                    styles.inputWrapperFocused,
+                    { 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      shadowColor: themeColors.primary
+                    }
+                  ]
                 ]}
                 activeOpacity={1}
                 onPress={() => emailRef.current?.focus()}
               >
-                <Mail size={20} color={emailFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <Mail size={20} color={emailFocused ? themeColors.primary : themeColors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   ref={emailRef}
-                  style={styles.input}
+                  style={[styles.input, { color: themeColors.text }]}
                   placeholder="Enter your email"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={themeColors.textSecondary}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -264,21 +303,32 @@ export const NewAuthScreen = () => {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password</Text>
+              <Text style={[styles.inputLabel, { color: themeColors.text }]}>Password</Text>
               <TouchableOpacity 
                 style={[
                   styles.inputWrapper,
-                  passwordFocused && styles.inputWrapperFocused
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border
+                  },
+                  passwordFocused && [
+                    styles.inputWrapperFocused,
+                    { 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      shadowColor: themeColors.primary
+                    }
+                  ]
                 ]}
                 activeOpacity={1}
                 onPress={() => passwordRef.current?.focus()}
               >
-                <Lock size={20} color={passwordFocused ? '#8A2BE2' : '#9CA3AF'} style={styles.inputIcon} />
+                <Lock size={20} color={passwordFocused ? themeColors.primary : themeColors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   ref={passwordRef}
-                  style={[styles.input, styles.passwordInput]}
+                  style={[styles.input, styles.passwordInput, { color: themeColors.text }]}
                   placeholder="Enter your password"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={themeColors.textSecondary}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -294,9 +344,9 @@ export const NewAuthScreen = () => {
                   activeOpacity={0.7}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color="#9CA3AF" />
+                    <EyeOff size={20} color={themeColors.textSecondary} />
                   ) : (
-                    <Eye size={20} color="#9CA3AF" />
+                    <Eye size={20} color={themeColors.textSecondary} />
                   )}
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -305,7 +355,7 @@ export const NewAuthScreen = () => {
             {/* Forgot Password */}
             {!isSignUp && (
               <TouchableOpacity style={styles.forgotPasswordContainer} activeOpacity={0.7}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                <Text style={[styles.forgotPasswordText, { color: themeColors.primary }]}>Forgot Password?</Text>
               </TouchableOpacity>
             )}
 
@@ -317,7 +367,7 @@ export const NewAuthScreen = () => {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#8A2BE2', '#6d28d9']}
+                colors={[themeColors.primary, themeColors.gradientEnd]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.primaryButtonGradient}
@@ -334,11 +384,11 @@ export const NewAuthScreen = () => {
 
             {/* Toggle Sign Up/In */}
             <View style={styles.toggleContainer}>
-              <Text style={styles.toggleText}>
+              <Text style={[styles.toggleText, { color: themeColors.textSecondary }]}>
                 {isSignUp ? 'Already have an account?' : "Don't have an account?"}
               </Text>
               <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} activeOpacity={0.7}>
-                <Text style={styles.toggleButtonText}>
+                <Text style={[styles.toggleButtonText, { color: themeColors.primary }]}>
                   {isSignUp ? 'Sign In' : 'Sign Up'}
                 </Text>
               </TouchableOpacity>
@@ -400,7 +450,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
     letterSpacing: 0.5,
@@ -408,17 +457,14 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 24,
     marginBottom: 40,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 10,
@@ -431,17 +477,14 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   errorContainer: {
-    backgroundColor: '#FEF2F2',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
     marginBottom: 8,
   },
   errorText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#EF4444',
     textAlign: 'center',
   },
   inputContainer: {
@@ -450,24 +493,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#374151',
     marginLeft: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
     paddingVertical: 16,
     transition: 'all 0.2s ease',
   },
   inputWrapperFocused: {
-    borderColor: '#8A2BE2',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#8A2BE2',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -483,7 +520,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#1F2937',
     paddingVertical: 0,
   },
   passwordInput: {
@@ -501,7 +537,6 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#8A2BE2',
   },
   primaryButton: {
     borderRadius: 16,
@@ -533,11 +568,9 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6B7280',
   },
   toggleButtonText: {
     fontSize: 14,
     fontFamily: 'Inter-SemiBold',
-    color: '#8A2BE2',
   },
 });

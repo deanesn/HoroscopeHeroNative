@@ -195,9 +195,13 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
       return (
         <View style={styles.webInputContainer}>
           <TextInput
-            style={styles.webInput}
+            style={[styles.webInput, { 
+              backgroundColor: themeColors.cardBackground,
+              borderColor: themeColors.border,
+              color: themeColors.text
+            }]}
             placeholder="YYYY-MM-DD"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={themeColors.textSecondary}
             value={webDateInput}
             onChangeText={handleWebDateChange}
             keyboardType="numeric"
@@ -227,9 +231,13 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
       return (
         <View style={styles.webInputContainer}>
           <TextInput
-            style={styles.webInput}
+            style={[styles.webInput, { 
+              backgroundColor: themeColors.cardBackground,
+              borderColor: themeColors.border,
+              color: themeColors.text
+            }]}
             placeholder="HH:MM AM/PM"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={themeColors.textSecondary}
             value={webTimeInput}
             onChangeText={handleWebTimeChange}
             keyboardType="numeric"
@@ -255,7 +263,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#1A1A2E', '#16213E', '#0F3460']}
+        colors={[themeColors.gradientStart, themeColors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.background}
@@ -275,25 +283,42 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: '20%' }]} />
             </View>
-            <Text style={styles.progressText}>1 of 5</Text>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>1 of 5</Text>
           </View>
         </View>
 
         {/* Content */}
         <Animated.View style={[styles.content, formAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>When were you born?</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: themeColors.text }]}>When were you born?</Text>
+            <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your birth date and time help us create your personalized horoscope and determine your zodiac sign
             </Text>
           </View>
 
-          <View style={styles.formContainer}>
+          <View style={[styles.formContainer, { 
+            backgroundColor: themeColors.surface,
+            shadowColor: themeColors.shadowColor
+          }]}>
             {/* Birth Date Selection */}
             <View style={styles.inputSection}>
-              <Text style={styles.inputLabel}>Birth Date</Text>
+              <Text style={[styles.inputLabel, { color: themeColors.text }]}>Birth Date</Text>
               <TouchableOpacity 
-                style={[styles.inputButton, selectedDate && styles.inputButtonSelected]}
+                style={[
+                  styles.inputButton, 
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border
+                  },
+                  selectedDate && [
+                    styles.inputButtonSelected,
+                    { 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      shadowColor: themeColors.primary
+                    }
+                  ]
+                ]}
                 onPress={() => {
                   if (Platform.OS === 'web' || !DateTimePicker) {
                     // For web, focus on the input field
@@ -302,15 +327,16 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                   setShowDatePicker(true);
                 }}
               >
-                <Calendar size={20} color={selectedDate ? '#8A2BE2' : '#9CA3AF'} />
+                <Calendar size={20} color={selectedDate ? themeColors.primary : themeColors.textSecondary} />
                 <Text style={[
                   styles.inputButtonText,
-                  selectedDate && styles.inputButtonTextSelected
+                  { color: themeColors.textSecondary },
+                  selectedDate && [styles.inputButtonTextSelected, { color: themeColors.text }]
                 ]}>
                   {selectedDate ? formatDate(selectedDate) : 'Select your birth date'}
                 </Text>
                 {Platform.OS !== 'web' && DateTimePicker && (
-                  <ChevronRight size={20} color="#9CA3AF" />
+                  <ChevronRight size={20} color={themeColors.textSecondary} />
                 )}
               </TouchableOpacity>
 
@@ -319,9 +345,23 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
             {/* Birth Time Selection */}
             <View style={styles.inputSection}>
-              <Text style={styles.inputLabel}>Birth Time</Text>
+              <Text style={[styles.inputLabel, { color: themeColors.text }]}>Birth Time</Text>
               <TouchableOpacity 
-                style={[styles.inputButton, selectedTime && styles.inputButtonSelected]}
+                style={[
+                  styles.inputButton, 
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border
+                  },
+                  selectedTime && [
+                    styles.inputButtonSelected,
+                    { 
+                      borderColor: themeColors.primary,
+                      backgroundColor: themeColors.surface,
+                      shadowColor: themeColors.primary
+                    }
+                  ]
+                ]}
                 onPress={() => {
                   if (Platform.OS === 'web' || !DateTimePicker) {
                     // For web, focus on the input field
@@ -330,15 +370,16 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                   setShowTimePicker(true);
                 }}
               >
-                <Clock size={20} color={selectedTime ? '#8A2BE2' : '#9CA3AF'} />
+                <Clock size={20} color={selectedTime ? themeColors.primary : themeColors.textSecondary} />
                 <Text style={[
                   styles.inputButtonText,
-                  selectedTime && styles.inputButtonTextSelected
+                  { color: themeColors.textSecondary },
+                  selectedTime && [styles.inputButtonTextSelected, { color: themeColors.text }]
                 ]}>
                   {selectedTime ? formatTime(selectedTime) : 'Select your birth time'}
                 </Text>
                 {Platform.OS !== 'web' && DateTimePicker && (
-                  <ChevronRight size={20} color="#9CA3AF" />
+                  <ChevronRight size={20} color={themeColors.textSecondary} />
                 )}
               </TouchableOpacity>
 
@@ -347,17 +388,23 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
 
             {/* Zodiac Sign Preview */}
             {selectedDate && (
-              <View style={styles.zodiacPreview}>
-                <Text style={styles.zodiacPreviewLabel}>Your Zodiac Sign:</Text>
-                <Text style={styles.zodiacPreviewSign}>
+              <View style={[styles.zodiacPreview, { 
+                backgroundColor: themeColors.accentBackground,
+                borderColor: themeColors.primary
+              }]}>
+                <Text style={[styles.zodiacPreviewLabel, { color: themeColors.text }]}>Your Zodiac Sign:</Text>
+                <Text style={[styles.zodiacPreviewSign, { color: themeColors.primary }]}>
                   {getZodiacSignFromDate(selectedDate)}
                 </Text>
               </View>
             )}
 
             {/* Info Note */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
+            <View style={[styles.infoContainer, { 
+              backgroundColor: themeColors.accentBackground,
+              borderLeftColor: themeColors.primary
+            }]}>
+              <Text style={[styles.infoText, { color: themeColors.text }]}>
                 💡 Don't know your exact birth time? Check your birth certificate or ask a family member. 
                 The more accurate your birth time, the more precise your horoscope will be.
               </Text>
@@ -377,7 +424,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
             disabled={!selectedDate || !selectedTime || loading}
           >
             <LinearGradient
-              colors={['#8A2BE2', '#6d28d9']}
+              colors={[themeColors.primary, themeColors.gradientEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.continueButtonGradient}
@@ -448,7 +495,6 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 8,
   },
   content: {
@@ -462,7 +508,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 12,
     letterSpacing: 0.5,
@@ -470,16 +515,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 10,
@@ -494,24 +536,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#374151',
     marginBottom: 12,
   },
   inputButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
     paddingVertical: 18,
     gap: 12,
   },
   inputButtonSelected: {
-    borderColor: '#8A2BE2',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#8A2BE2',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -524,57 +560,45 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#9CA3AF',
   },
   inputButtonTextSelected: {
-    color: '#1F2937',
     fontFamily: 'Inter-Medium',
   },
   webInputContainer: {
     marginTop: 12,
   },
   webInput: {
-    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#1F2937',
   },
   zodiacPreview: {
-    backgroundColor: '#F0F9FF',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#0EA5E9',
   },
   zodiacPreviewLabel: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#0F172A',
     marginBottom: 4,
   },
   zodiacPreviewSign: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#0EA5E9',
   },
   infoContainer: {
-    backgroundColor: '#F0F9FF',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#0EA5E9',
   },
   infoText: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#0F172A',
     lineHeight: 20,
   },
   buttonContainer: {
