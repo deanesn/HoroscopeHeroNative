@@ -79,7 +79,7 @@ export const colors = {
     background: '#1A1A2E',
     surface: '#2C2C40',
     text: '#E0E0E0',
-    textSecondary: '#A0A0A0',
+    textSecondary: '#FFFFFF',
     primary: '#8A2BE2',
     border: '#404058',
     error: '#EF4444',
