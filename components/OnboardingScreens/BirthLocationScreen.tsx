@@ -8,6 +8,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MapPin, ChevronRight, ArrowLeft, Search, CircleAlert as AlertCircle } from 'lucide-react-native';
@@ -202,7 +204,11 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
   }));
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
       <LinearGradient
         colors={[themeColors.gradientStart, themeColors.gradientEnd]}
         start={{ x: 0, y: 0 }}
@@ -214,6 +220,8 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        bounces={false}
       >
         {/* Header */}
         <View style={styles.header}>
@@ -438,7 +446,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
