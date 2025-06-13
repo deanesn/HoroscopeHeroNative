@@ -60,7 +60,7 @@ export const colors = {
     background: '#F9FAFB',
     surface: '#FFFFFF',
     text: '#1F2937',
-    textSecondary: '#6B7280',
+    textSecondary: '#A0A0A0',
     primary: '#6d28d9',
     border: '#E5E7EB',
     error: '#EF4444',
