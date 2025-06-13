@@ -17,6 +17,7 @@ import { MapPin, ChevronRight, ArrowLeft, Search, CircleAlert as AlertCircle } f
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -30,6 +31,7 @@ const { width, height } = Dimensions.get('window');
 interface BirthLocationScreenProps {
   onNext: () => void;
   onBack: () => void;
+  isEditing?: boolean;
 }
 
 interface LocationResult {
@@ -53,9 +55,31 @@ const popularCities = [
   { name: 'Berlin', country: 'Germany', latitude: 52.5200, longitude: 13.4050, timezone: 'Europe/Berlin' },
 ];
 
-export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
+export const BirthLocationScreen = ({ onNext, onBack, isEditing = false }: BirthLocationScreenProps) => {
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  
+  // Initialize with existing values if editing
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (isEditing && params.birthCity && params.birthCountry) {
+      return `${params.birthCity}, ${params.birthCountry}`;
+    }
+    return '';
+  });
+  
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(() => {
+    if (isEditing && params.birthCity && params.birthCountry && params.birthLatitude && params.birthLongitude) {
+      return {
+        name: params.birthCity as string,
+        country: params.birthCountry as string,
+        latitude: parseFloat(params.birthLatitude as string),
+        longitude: parseFloat(params.birthLongitude as string),
+        timezone: params.birthTimezone as string || 'UTC',
+      };
+    }
+    return null;
+  });
+  
   const [searchResults, setSearchResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -143,13 +167,13 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
   // Debounced search
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (searchQuery.trim() && showSuggestions) {
+      if (searchQuery.trim() && showSuggestions && !selectedLocation) {
         searchLocation(searchQuery);
       }
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, showSuggestions]);
+  }, [searchQuery, showSuggestions, selectedLocation]);
 
   const handleLocationSelection = (location: LocationResult) => {
     setSelectedLocation(location);
@@ -209,7 +233,13 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
         throw updateError;
       }
 
-      onNext();
+      if (isEditing) {
+        // If editing, complete and go back to profile
+        onNext();
+      } else {
+        // If onboarding, continue to next step
+        onNext();
+      }
     } catch (error) {
       console.error('Error saving birth location:', error);
       setError('Failed to save birth location. Please try again.');
@@ -218,10 +248,21 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
     }
   };
 
+  const handleBack = () => {
+    if (isEditing) {
+      router.back();
+    } else {
+      onBack();
+    }
+  };
+
   const formAnimatedStyle = useAnimatedStyle(() => ({
     opacity: formOpacity.value,
     transform: [{ translateY: formTranslateY.value }],
   }));
+
+  const progressText = isEditing ? '2 of 2' : '3 of 5';
+  const progressWidth = isEditing ? '100%' : '60%';
 
   return (
     <KeyboardAvoidingView 
@@ -248,22 +289,24 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
           
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '60%' }]} />
+              <View style={[styles.progressFill, { width: progressWidth }]} />
             </View>
-            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>3 of 5</Text>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>{progressText}</Text>
           </View>
         </View>
 
         {/* Content */}
         <Animated.View style={[styles.content, formAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: themeColors.text }]}>Where were you born?</Text>
+            <Text style={[styles.title, { color: themeColors.text }]}>
+              {isEditing ? 'Edit Birth Location' : 'Where were you born?'}
+            </Text>
             <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your birth location helps us calculate accurate planetary positions for your astrological chart
             </Text>
@@ -315,7 +358,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   value={searchQuery}
                   onChangeText={(text) => {
                     setSearchQuery(text);
-                    setShowSuggestions(text.length > 0);
+                    setShowSuggestions(text.length > 0 && !selectedLocation);
                     if (text.length === 0) {
                       setSelectedLocation(null);
                       setError(null);
@@ -323,7 +366,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   }}
                   onFocus={() => {
                     setSearchFocused(true);
-                    setShowSuggestions(searchQuery.length > 0);
+                    setShowSuggestions(searchQuery.length > 0 && !selectedLocation);
                   }}
                   onBlur={() => {
                     setSearchFocused(false);
@@ -461,7 +504,9 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
                   <ActivityIndicator color="#FFFFFF" size="small" />
                 ) : (
                   <>
-                    <Text style={styles.continueButtonText}>Continue</Text>
+                    <Text style={styles.continueButtonText}>
+                      {isEditing ? 'Save Changes' : 'Continue'}
+                    </Text>
                     <ChevronRight size={20} color="#FFFFFF" />
                   </>
                 )}

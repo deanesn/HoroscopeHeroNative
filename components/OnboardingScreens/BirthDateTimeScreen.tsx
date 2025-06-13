@@ -17,6 +17,7 @@ import { Calendar, Clock, ChevronRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase, getZodiacSignFromDate } from '@/lib/supabase';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -40,18 +41,49 @@ const { width, height } = Dimensions.get('window');
 interface BirthDateTimeScreenProps {
   onNext: () => void;
   onBack: () => void;
+  isEditing?: boolean;
 }
 
-export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<Date | null>(null);
+export const BirthDateTimeScreen = ({ onNext, onBack, isEditing = false }: BirthDateTimeScreenProps) => {
+  const params = useLocalSearchParams();
+  const router = useRouter();
+  
+  // Initialize with existing values if editing
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+    if (isEditing && params.birthDate && typeof params.birthDate === 'string') {
+      return new Date(params.birthDate);
+    }
+    return null;
+  });
+  
+  const [selectedTime, setSelectedTime] = useState<Date | null>(() => {
+    if (isEditing && params.birthTime && typeof params.birthTime === 'string') {
+      const [hours, minutes] = params.birthTime.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      return date;
+    }
+    return null;
+  });
+  
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
   // Web-specific states
-  const [webDateInput, setWebDateInput] = useState('');
-  const [webTimeInput, setWebTimeInput] = useState('');
+  const [webDateInput, setWebDateInput] = useState(() => {
+    if (isEditing && params.birthDate && typeof params.birthDate === 'string') {
+      return params.birthDate;
+    }
+    return '';
+  });
+  
+  const [webTimeInput, setWebTimeInput] = useState(() => {
+    if (isEditing && params.birthTime && typeof params.birthTime === 'string') {
+      return params.birthTime.substring(0, 5); // Remove seconds
+    }
+    return '';
+  });
   
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -163,12 +195,26 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
         throw error;
       }
 
-      onNext();
+      if (isEditing) {
+        // If editing, navigate to next step or back to profile
+        onNext();
+      } else {
+        // If onboarding, continue to next step
+        onNext();
+      }
     } catch (error) {
       console.error('Error saving birth info:', error);
       Alert.alert('Error', 'Failed to save birth information. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    if (isEditing) {
+      router.back();
+    } else {
+      onBack();
     }
   };
 
@@ -236,7 +282,7 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
               borderColor: themeColors.border,
               color: themeColors.text
             }]}
-            placeholder="HH:MM AM/PM"
+            placeholder="HH:MM"
             placeholderTextColor={themeColors.textSecondary}
             value={webTimeInput}
             onChangeText={handleWebTimeChange}
@@ -260,6 +306,9 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
     );
   };
 
+  const progressText = isEditing ? '1 of 2' : '1 of 5';
+  const progressWidth = isEditing ? '50%' : '20%';
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -275,22 +324,24 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
           
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '20%' }]} />
+              <View style={[styles.progressFill, { width: progressWidth }]} />
             </View>
-            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>1 of 5</Text>
+            <Text style={[styles.progressText, { color: themeColors.textSecondary }]}>{progressText}</Text>
           </View>
         </View>
 
         {/* Content */}
         <Animated.View style={[styles.content, formAnimatedStyle]}>
           <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: themeColors.text }]}>When were you born?</Text>
+            <Text style={[styles.title, { color: themeColors.text }]}>
+              {isEditing ? 'Edit Birth Date & Time' : 'When were you born?'}
+            </Text>
             <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
               Your birth date and time help us create your personalized horoscope and determine your zodiac sign
             </Text>
@@ -433,7 +484,9 @@ export const BirthDateTimeScreen = ({ onNext, onBack }: BirthDateTimeScreenProps
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <>
-                  <Text style={styles.continueButtonText}>Continue</Text>
+                  <Text style={styles.continueButtonText}>
+                    {isEditing ? 'Next' : 'Continue'}
+                  </Text>
                   <ChevronRight size={20} color="#FFFFFF" />
                 </>
               )}

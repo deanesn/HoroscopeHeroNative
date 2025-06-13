@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Profile, supabase } from '@/lib/supabase';
-import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { LogOut, User, Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 export const ProfileScreen = () => {
   const { user, signOut } = useAuth();
@@ -21,6 +21,15 @@ export const ProfileScreen = () => {
       fetchProfile();
     }
   }, [user]);
+
+  // Refresh profile data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user) {
+        fetchProfile();
+      }
+    }, [user])
+  );
 
   const fetchProfile = async () => {
     if (!user?.id) return;
@@ -50,6 +59,22 @@ export const ProfileScreen = () => {
     }
   };
 
+  const handleEditBirthDetails = () => {
+    // Navigate to edit birth details modal with current profile data
+    router.push({
+      pathname: '/(modals)/edit-birth-details/date-time',
+      params: {
+        birthDate: profile?.birth_date || '',
+        birthTime: profile?.birth_time || '',
+        birthCity: profile?.birth_city || '',
+        birthCountry: profile?.birth_country || '',
+        birthLatitude: profile?.birth_latitude?.toString() || '',
+        birthLongitude: profile?.birth_longitude?.toString() || '',
+        birthTimezone: profile?.birth_timezone || '',
+      }
+    });
+  };
+
   const handleSignOut = async () => {
     try {
       setSigningOut(true);
@@ -62,6 +87,25 @@ export const ProfileScreen = () => {
     } finally {
       setSigningOut(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   return (
@@ -80,6 +124,9 @@ export const ProfileScreen = () => {
           <View style={styles.headerTextContainer}>
             <Text style={styles.name}>{profile?.first_name || 'Cosmic'} {profile?.last_name || 'Explorer'}</Text>
             <Text style={styles.email}>{user?.email}</Text>
+            {profile?.zodiac_sign && (
+              <Text style={styles.zodiacSign}>{profile.zodiac_sign}</Text>
+            )}
           </View>
         </View>
       </View>
@@ -109,7 +156,10 @@ export const ProfileScreen = () => {
           <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Birth Information</Text>
-              <TouchableOpacity style={styles.editButton}>
+              <TouchableOpacity 
+                style={styles.editButton}
+                onPress={handleEditBirthDetails}
+              >
                 <Edit size={16} color={themeColors.primary} />
                 <Text style={[styles.editButtonText, { color: themeColors.primary }]}>Edit</Text>
               </TouchableOpacity>
@@ -117,25 +167,39 @@ export const ProfileScreen = () => {
 
             <View style={[styles.infoItem, { borderBottomColor: themeColors.border }]}>
               <Calendar size={20} color={themeColors.primary} />
-              <Text style={[styles.infoText, { color: themeColors.textSecondary }]}>
-                {profile?.birth_date || 'Add your birth date'}
-              </Text>
+              <View style={styles.infoTextContainer}>
+                <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Date</Text>
+                <Text style={[styles.infoText, { color: themeColors.text }]}>
+                  {profile?.birth_date ? formatDate(profile.birth_date) : 'Not set'}
+                </Text>
+              </View>
             </View>
 
             <View style={[styles.infoItem, { borderBottomColor: themeColors.border }]}>
               <Clock size={20} color={themeColors.primary} />
-              <Text style={[styles.infoText, { color: themeColors.textSecondary }]}>
-                {profile?.birth_time || 'Add your birth time'}
-              </Text>
+              <View style={styles.infoTextContainer}>
+                <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Time</Text>
+                <Text style={[styles.infoText, { color: themeColors.text }]}>
+                  {profile?.birth_time ? formatTime(profile.birth_time) : 'Not set'}
+                </Text>
+              </View>
             </View>
 
             <View style={[styles.infoItem, { borderBottomColor: themeColors.border }]}>
               <MapPin size={20} color={themeColors.primary} />
-              <Text style={[styles.infoText, { color: themeColors.textSecondary }]}>
-                {profile?.birth_city && profile?.birth_country 
-                  ? `${profile.birth_city}, ${profile.birth_country}` 
-                  : 'Add your birth location'}
-              </Text>
+              <View style={styles.infoTextContainer}>
+                <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Location</Text>
+                <Text style={[styles.infoText, { color: themeColors.text }]}>
+                  {profile?.birth_city && profile?.birth_country 
+                    ? `${profile.birth_city}, ${profile.birth_country}` 
+                    : 'Not set'}
+                </Text>
+                {profile?.birth_latitude && profile?.birth_longitude && (
+                  <Text style={[styles.coordinatesText, { color: themeColors.textSecondary }]}>
+                    {profile.birth_latitude.toFixed(4)}°, {profile.birth_longitude.toFixed(4)}°
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
 
@@ -225,6 +289,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontFamily: 'Inter-Regular',
   },
+  zodiacSign: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    fontFamily: 'Inter-Medium',
+  },
   section: {
     margin: 16,
     borderRadius: 12,
@@ -256,21 +325,35 @@ const styles = StyleSheet.create({
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 4,
   },
   editButtonText: {
-    marginLeft: 4,
     fontFamily: 'Inter-Medium',
+    fontSize: 14,
   },
   infoItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
-  infoText: {
+  infoTextContainer: {
     marginLeft: 12,
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    marginBottom: 2,
+  },
+  infoText: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
+  },
+  coordinatesText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    marginTop: 2,
   },
   settingsItem: {
     paddingVertical: 16,
