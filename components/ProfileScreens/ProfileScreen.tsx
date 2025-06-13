@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Profile, supabase } from '@/lib/supabase';
-import { LogOut, User, Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
+import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 
 export const ProfileScreen = () => {
