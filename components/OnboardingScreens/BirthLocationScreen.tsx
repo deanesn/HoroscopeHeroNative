@@ -61,6 +61,7 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [extraScrollPadding, setExtraScrollPadding] = useState(0);
   
   // Refs for input focus handling
   const searchInputRef = useRef<TextInput>(null);
@@ -85,6 +86,16 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
       stiffness: 100,
     });
   }, []);
+
+  // Update extra scroll padding when suggestions visibility changes
+  React.useEffect(() => {
+    if (showSuggestions && searchResults.length > 0) {
+      // Add padding for dropdown height (200px) plus buffer (40px)
+      setExtraScrollPadding(240);
+    } else {
+      setExtraScrollPadding(0);
+    }
+  }, [showSuggestions, searchResults.length]);
 
   const searchLocation = async (query: string) => {
     if (!query.trim() || query.length < 2) {
@@ -217,7 +228,10 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
       />
       
       <ScrollView 
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: 24 + extraScrollPadding }
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
