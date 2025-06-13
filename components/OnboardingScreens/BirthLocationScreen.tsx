@@ -431,34 +431,36 @@ export const BirthLocationScreen = ({ onNext, onBack }: BirthLocationScreenProps
           </View>
         </Animated.View>
 
-        {/* Continue Button */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[
-              styles.continueButton, 
-              !selectedLocation && styles.continueButtonDisabled,
-              saving && styles.continueButtonDisabled
-            ]}
-            onPress={handleSaveBirthLocation}
-            disabled={!selectedLocation || saving}
-          >
-            <LinearGradient
-              colors={[themeColors.primary, themeColors.gradientEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.continueButtonGradient}
+        {/* Continue Button - Only show when suggestions are not visible */}
+        {!showSuggestions && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={[
+                styles.continueButton, 
+                !selectedLocation && styles.continueButtonDisabled,
+                saving && styles.continueButtonDisabled
+              ]}
+              onPress={handleSaveBirthLocation}
+              disabled={!selectedLocation || saving}
             >
-              {saving ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <>
-                  <Text style={styles.continueButtonText}>Continue</Text>
-                  <ChevronRight size={20} color="#FFFFFF" />
-                </>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+              <LinearGradient
+                colors={[themeColors.primary, themeColors.gradientEnd]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.continueButtonGradient}
+              >
+                {saving ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Text style={styles.continueButtonText}>Continue</Text>
+                    <ChevronRight size={20} color="#FFFFFF" />
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
