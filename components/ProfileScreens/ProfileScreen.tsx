@@ -108,6 +108,46 @@ export const ProfileScreen = () => {
     });
   };
 
+  // Safe text rendering helpers
+  const getDisplayName = () => {
+    const firstName = profile?.first_name || '';
+    const lastName = profile?.last_name || '';
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim();
+    }
+    return 'Cosmic Explorer';
+  };
+
+  const getUserEmail = () => {
+    return user?.email || '';
+  };
+
+  const getZodiacSign = () => {
+    return profile?.zodiac_sign || '';
+  };
+
+  const getBirthDate = () => {
+    return profile?.birth_date ? formatDate(profile.birth_date) : 'Not set';
+  };
+
+  const getBirthTime = () => {
+    return profile?.birth_time ? formatTime(profile.birth_time) : 'Not set';
+  };
+
+  const getBirthLocation = () => {
+    if (profile?.birth_city && profile?.birth_country) {
+      return `${profile.birth_city}, ${profile.birth_country}`;
+    }
+    return 'Not set';
+  };
+
+  const getCoordinates = () => {
+    if (profile?.birth_latitude && profile?.birth_longitude) {
+      return `${profile.birth_latitude.toFixed(4)}°, ${profile.birth_longitude.toFixed(4)}°`;
+    }
+    return '';
+  };
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <View style={[styles.header, { backgroundColor: themeColors.primary }]}>
@@ -122,11 +162,11 @@ export const ProfileScreen = () => {
             <User size={40} color="#FFFFFF" />
           </View>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.name}>{profile?.first_name || 'Cosmic'} {profile?.last_name || 'Explorer'}</Text>
-            <Text style={styles.email}>{user?.email}</Text>
-            {profile?.zodiac_sign && (
-              <Text style={styles.zodiacSign}>{profile.zodiac_sign}</Text>
-            )}
+            <Text style={styles.name}>{getDisplayName()}</Text>
+            <Text style={styles.email}>{getUserEmail()}</Text>
+            {getZodiacSign() ? (
+              <Text style={styles.zodiacSign}>{getZodiacSign()}</Text>
+            ) : null}
           </View>
         </View>
       </View>
@@ -170,7 +210,7 @@ export const ProfileScreen = () => {
               <View style={styles.infoTextContainer}>
                 <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Date</Text>
                 <Text style={[styles.infoText, { color: themeColors.text }]}>
-                  {profile?.birth_date ? formatDate(profile.birth_date) : 'Not set'}
+                  {getBirthDate()}
                 </Text>
               </View>
             </View>
@@ -180,7 +220,7 @@ export const ProfileScreen = () => {
               <View style={styles.infoTextContainer}>
                 <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Time</Text>
                 <Text style={[styles.infoText, { color: themeColors.text }]}>
-                  {profile?.birth_time ? formatTime(profile.birth_time) : 'Not set'}
+                  {getBirthTime()}
                 </Text>
               </View>
             </View>
@@ -190,15 +230,13 @@ export const ProfileScreen = () => {
               <View style={styles.infoTextContainer}>
                 <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Birth Location</Text>
                 <Text style={[styles.infoText, { color: themeColors.text }]}>
-                  {profile?.birth_city && profile?.birth_country 
-                    ? `${profile.birth_city}, ${profile.birth_country}` 
-                    : 'Not set'}
+                  {getBirthLocation()}
                 </Text>
-                {profile?.birth_latitude && profile?.birth_longitude && (
+                {getCoordinates() ? (
                   <Text style={[styles.coordinatesText, { color: themeColors.textSecondary }]}>
-                    {profile.birth_latitude.toFixed(4)}°, {profile.birth_longitude.toFixed(4)}°
+                    {getCoordinates()}
                   </Text>
-                )}
+                ) : null}
               </View>
             </View>
           </View>
