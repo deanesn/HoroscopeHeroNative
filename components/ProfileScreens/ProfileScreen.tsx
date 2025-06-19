@@ -275,10 +275,6 @@ export const ProfileScreen = () => {
               <Text style={[styles.settingsText, { color: themeColors.text }]}>Change Password</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
-              <Text style={[styles.settingsText, { color: themeColors.text }]}>Privacy Settings</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity 
               style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}
               onPress={handleOpenPrivacyPolicy}
