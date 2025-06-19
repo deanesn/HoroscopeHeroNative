@@ -24,7 +24,7 @@ export const useNotifications = () => {
   const { user } = useAuth();
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
-  const subscriptions = useRef<any[]>([]);
+  const channelsRef = useRef<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -45,12 +45,21 @@ export const useNotifications = () => {
       }
 
       // Clean up Supabase subscriptions
-      subscriptions.current.forEach(subscription => {
-        subscription.unsubscribe();
-      });
-      subscriptions.current = [];
+      cleanupChannels();
     };
   }, [user]);
+
+  const cleanupChannels = () => {
+    channelsRef.current.forEach(channel => {
+      try {
+        // Remove the channel from Supabase client
+        supabase.removeChannel(channel);
+      } catch (error) {
+        console.warn('Error removing channel:', error);
+      }
+    });
+    channelsRef.current = [];
+  };
 
   const setupNotifications = async () => {
     // Only request permissions on native platforms
@@ -88,6 +97,18 @@ export const useNotifications = () => {
 
   const setupRealtimeSubscriptions = () => {
     if (!user?.id) return;
+
+    // Clean up any existing channels first
+    cleanupChannels();
+
+    // Remove any existing channels with these names from Supabase client
+    try {
+      supabase.removeChannel(supabase.channel('daily_horoscopes_changes'));
+      supabase.removeChannel(supabase.channel('weekly_horoscopes_changes'));
+      supabase.removeChannel(supabase.channel('monthly_horoscopes_changes'));
+    } catch (error) {
+      // Channels might not exist, which is fine
+    }
 
     // Subscribe to daily horoscopes
     const dailySubscription = supabase
@@ -213,7 +234,7 @@ export const useNotifications = () => {
       .subscribe();
 
     // Store subscriptions for cleanup
-    subscriptions.current = [dailySubscription, weeklySubscription, monthlySubscription];
+    channelsRef.current = [dailySubscription, weeklySubscription, monthlySubscription];
   };
 
   const scheduleNotification = async (notificationData: NotificationData) => {
