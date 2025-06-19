@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Profile, supabase } from '@/lib/supabase';
-import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
+import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X, ExternalLink } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { NotificationSettings } from '@/components/shared/NotificationSettings';
+import * as Linking from 'expo-linking';
 
 export const ProfileScreen = () => {
   const { user, signOut } = useAuth();
@@ -87,6 +88,24 @@ export const ProfileScreen = () => {
       router.replace('/auth');
     } finally {
       setSigningOut(false);
+    }
+  };
+
+  const handleOpenPrivacyPolicy = async () => {
+    try {
+      await Linking.openURL('https://horoscopehero.app/privacy-policy');
+    } catch (error) {
+      console.error('Error opening privacy policy:', error);
+      Alert.alert('Error', 'Unable to open privacy policy. Please try again later.');
+    }
+  };
+
+  const handleOpenTermsOfService = async () => {
+    try {
+      await Linking.openURL('https://horoscopehero.app/terms-of-service');
+    } catch (error) {
+      console.error('Error opening terms of service:', error);
+      Alert.alert('Error', 'Unable to open terms of service. Please try again later.');
     }
   };
 
@@ -194,11 +213,6 @@ export const ProfileScreen = () => {
             </View>
           </View>
 
-          {/* Notification Settings */}
-          <View style={styles.sectionContainer}>
-            <NotificationSettings />
-          </View>
-
           <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Birth Information</Text>
@@ -247,6 +261,11 @@ export const ProfileScreen = () => {
             </View>
           </View>
 
+          {/* Notification Settings */}
+          <View style={styles.sectionContainer}>
+            <NotificationSettings />
+          </View>
+
           <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Account Settings</Text>
@@ -258,6 +277,26 @@ export const ProfileScreen = () => {
 
             <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
               <Text style={[styles.settingsText, { color: themeColors.text }]}>Privacy Settings</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}
+              onPress={handleOpenPrivacyPolicy}
+            >
+              <View style={styles.settingsItemContent}>
+                <Text style={[styles.settingsText, { color: themeColors.text }]}>Privacy Policy</Text>
+                <ExternalLink size={16} color={themeColors.textSecondary} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}
+              onPress={handleOpenTermsOfService}
+            >
+              <View style={styles.settingsItemContent}>
+                <Text style={[styles.settingsText, { color: themeColors.text }]}>Terms of Service</Text>
+                <ExternalLink size={16} color={themeColors.textSecondary} />
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -401,6 +440,11 @@ const styles = StyleSheet.create({
   settingsItem: {
     paddingVertical: 16,
     borderBottomWidth: 1,
+  },
+  settingsItemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   settingsText: {
     fontSize: 16,
