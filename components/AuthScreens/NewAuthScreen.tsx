@@ -16,6 +16,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -49,6 +50,7 @@ export const NewAuthScreen = () => {
   const { signIn, signUp } = useAuth();
   const { theme } = useTheme();
   const themeColors = colors[theme];
+  const router = useRouter();
 
   // Animation values
   const formOpacity = useSharedValue(0);
@@ -106,6 +108,10 @@ export const NewAuthScreen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    router.push('/(modals)/forgot-password');
   };
 
   const formAnimatedStyle = useAnimatedStyle(() => ({
@@ -354,7 +360,11 @@ export const NewAuthScreen = () => {
 
             {/* Forgot Password */}
             {!isSignUp && (
-              <TouchableOpacity style={styles.forgotPasswordContainer} activeOpacity={0.7}>
+              <TouchableOpacity 
+                style={styles.forgotPasswordContainer} 
+                onPress={handleForgotPassword}
+                activeOpacity={0.7}
+              >
                 <Text style={[styles.forgotPasswordText, { color: themeColors.primary }]}>Forgot Password?</Text>
               </TouchableOpacity>
             )}
