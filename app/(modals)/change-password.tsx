@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Eye, EyeOff, Lock, X, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { Eye, EyeOff, Lock, X, CircleCheck as CheckCircle, CircleAlert as AlertCircle } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useNotificationContext } from '@/context/NotificationContext';
 import Animated, { 
