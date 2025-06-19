@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Header } from '@/components/shared/Header';
+import { ScoreBar } from '@/components/shared/ScoreBar';
 import { zodiacSigns } from '@/app/(tabs)/zodiac/data';
 import { Flame as Aries, Mountain as Taurus, Users as Gemini, Moon as Cancer, Sun as Leo, Wheat as Virgo, Scale as Libra, Bug as Scorpio, Target as Sagittarius, Mountain as Capricorn, Waves as Aquarius, Fish as Pisces } from 'lucide-react-native';
 
@@ -277,33 +278,27 @@ export const HomeScreen = () => {
                     </Text>
                     {selectedType === 'daily' && profile.is_subscribed && horoscope?.love_score && (
                       <View style={[styles.scoreContainer, { borderTopColor: themeColors.border }]}>
-                        <View style={styles.scoreItem}>
-                          <Heart color="#FF6B6B" size={24} />
-                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                            {horoscope.love_score}/10
-                          </Text>
-                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                            Love
-                          </Text>
-                        </View>
-                        <View style={styles.scoreItem}>
-                          <Moon color="#4A90E2" size={24} />
-                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                            {horoscope.mood_score}/10
-                          </Text>
-                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                            Mood
-                          </Text>
-                        </View>
-                        <View style={styles.scoreItem}>
-                          <DollarSign color="#2ECC71" size={24} />
-                          <Text style={[styles.scoreValue, { color: themeColors.text }]}>
-                            {horoscope.money_score}/10
-                          </Text>
-                          <Text style={[styles.scoreLabel, { color: themeColors.textSecondary }]}>
-                            Money
-                          </Text>
-                        </View>
+                        <ScoreBar
+                          score={horoscope.love_score * 10} // Convert to percentage for animation
+                          label="Love"
+                          icon={<Heart size={24} color="#FF6B6B" />}
+                          color="#FF6B6B"
+                          delay={0}
+                        />
+                        <ScoreBar
+                          score={horoscope.mood_score ? horoscope.mood_score * 10 : 0}
+                          label="Mood"
+                          icon={<Moon size={24} color="#4A90E2" />}
+                          color="#4A90E2"
+                          delay={200}
+                        />
+                        <ScoreBar
+                          score={horoscope.money_score ? horoscope.money_score * 10 : 0}
+                          label="Money"
+                          icon={<DollarSign size={24} color="#2ECC71" />}
+                          color="#2ECC71"
+                          delay={400}
+                        />
                       </View>
                     )}
                   </>
@@ -478,23 +473,10 @@ const styles = StyleSheet.create({
   scoreContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: 20,
+    paddingTop: 20,
     borderTopWidth: 1,
-  },
-  scoreItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  scoreValue: {
-    fontSize: 18,
-    marginTop: 8,
-    fontFamily: 'Inter-Bold',
-  },
-  scoreLabel: {
-    fontSize: 14,
-    marginTop: 4,
-    fontFamily: 'Inter-Regular',
+    gap: 16,
   },
   completeProfileCard: {
     borderRadius: 16,
