@@ -5,6 +5,7 @@ import { useTheme, colors } from '@/context/ThemeContext';
 import { Profile, supabase } from '@/lib/supabase';
 import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { NotificationSettings } from '@/components/shared/NotificationSettings';
 
 export const ProfileScreen = () => {
   const { user, signOut } = useAuth();
@@ -193,6 +194,11 @@ export const ProfileScreen = () => {
             </View>
           </View>
 
+          {/* Notification Settings */}
+          <View style={styles.sectionContainer}>
+            <NotificationSettings />
+          </View>
+
           <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Birth Information</Text>
@@ -248,10 +254,6 @@ export const ProfileScreen = () => {
 
             <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
               <Text style={[styles.settingsText, { color: themeColors.text }]}>Change Password</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
-              <Text style={[styles.settingsText, { color: themeColors.text }]}>Notifications</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
@@ -344,6 +346,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+  },
+  sectionContainer: {
+    paddingHorizontal: 16,
   },
   sectionHeader: {
     flexDirection: 'row',

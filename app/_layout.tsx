@@ -13,8 +13,12 @@ import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { NotificationBanner } from '@/components/shared/NotificationBanner';
+import { useNotificationContext } from '@/context/NotificationContext';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,42 @@ if (Platform.OS !== 'web') {
   } catch (e) {
     console.warn('Error accessing SplashScreen:', e);
   }
+}
+
+function AppContent() {
+  const { notification, hideNotification } = useNotificationContext();
+  
+  // Initialize notifications hook
+  useNotifications();
+
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(modals)" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      
+      {/* Global Notification Banner */}
+      {notification && (
+        <NotificationBanner
+          visible={!!notification}
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          duration={notification.duration}
+          onDismiss={hideNotification}
+          onPress={notification.onPress}
+        />
+      )}
+      
+      <StatusBar style="auto" />
+    </>
+  );
 }
 
 export default function RootLayout() {
@@ -64,18 +104,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="auth" options={{ headerShown: false }} />
-              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(modals)" options={{ presentation: 'modal' }} />
-              <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
-          </AuthProvider>
+          <NotificationProvider>
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          </NotificationProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
