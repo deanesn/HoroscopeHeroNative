@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useAuth } from '@/context/AuthContext';
 import { useTheme, colors } from '@/context/ThemeContext';
 import { Profile, supabase } from '@/lib/supabase';
-import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X, ExternalLink } from 'lucide-react-native';
+import { LogOut, User, CreditCard as Edit, Calendar, MapPin, Clock, Moon, Sun, X, ExternalLink, Lock } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { NotificationSettings } from '@/components/shared/NotificationSettings';
 import * as Linking from 'expo-linking';
@@ -77,18 +77,8 @@ export const ProfileScreen = () => {
     });
   };
 
-  const handleSignOut = async () => {
-    try {
-      setSigningOut(true);
-      await signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-      // Even if sign out fails, clear local state and navigate
-      setProfile(null);
-      router.replace('/auth');
-    } finally {
-      setSigningOut(false);
-    }
+  const handleChangePassword = () => {
+    router.push('/(modals)/change-password');
   };
 
   const handleOpenPrivacyPolicy = async () => {
@@ -106,6 +96,20 @@ export const ProfileScreen = () => {
     } catch (error) {
       console.error('Error opening terms of service:', error);
       Alert.alert('Error', 'Unable to open terms of service. Please try again later.');
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setSigningOut(true);
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Even if sign out fails, clear local state and navigate
+      setProfile(null);
+      router.replace('/auth');
+    } finally {
+      setSigningOut(false);
     }
   };
 
@@ -271,8 +275,16 @@ export const ProfileScreen = () => {
               <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Account Settings</Text>
             </View>
 
-            <TouchableOpacity style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}>
-              <Text style={[styles.settingsText, { color: themeColors.text }]}>Change Password</Text>
+            <TouchableOpacity 
+              style={[styles.settingsItem, { borderBottomColor: themeColors.border }]}
+              onPress={handleChangePassword}
+            >
+              <View style={styles.settingsItemContent}>
+                <View style={styles.settingsItemLeft}>
+                  <Lock size={20} color={themeColors.primary} />
+                  <Text style={[styles.settingsText, { color: themeColors.text }]}>Change Password</Text>
+                </View>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -441,6 +453,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  settingsItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   settingsText: {
     fontSize: 16,
