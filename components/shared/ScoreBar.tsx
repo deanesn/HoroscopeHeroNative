@@ -26,7 +26,7 @@ export const ScoreBar = ({ score, label, icon, color, delay = 0 }: ScoreBarProps
   const scoreOpacity = useSharedValue(0);
 
   React.useEffect(() => {
-    // Animate the progress bar
+    // Animate the progress bar (score is already 0-100, so use it directly for percentage)
     progressWidth.value = withDelay(
       delay,
       withTiming(score, {
@@ -65,7 +65,7 @@ export const ScoreBar = ({ score, label, icon, color, delay = 0 }: ScoreBarProps
             {score}
           </Text>
           <Text style={[styles.scoreMax, { color: themeColors.textSecondary }]}>
-            /10
+            /100
           </Text>
         </Animated.View>
       </View>

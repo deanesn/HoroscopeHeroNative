@@ -279,21 +279,21 @@ export const HomeScreen = () => {
                     {selectedType === 'daily' && profile.is_subscribed && horoscope?.love_score && (
                       <View style={[styles.scoreContainer, { borderTopColor: themeColors.border }]}>
                         <ScoreBar
-                          score={horoscope.love_score * 10} // Convert to percentage for animation
+                          score={horoscope.love_score} // Use raw score (1-100)
                           label="Love"
                           icon={<Heart size={24} color="#FF6B6B" />}
                           color="#FF6B6B"
                           delay={0}
                         />
                         <ScoreBar
-                          score={horoscope.mood_score ? horoscope.mood_score * 10 : 0}
+                          score={horoscope.mood_score || 0} // Use raw score (1-100)
                           label="Mood"
                           icon={<Moon size={24} color="#4A90E2" />}
                           color="#4A90E2"
                           delay={200}
                         />
                         <ScoreBar
-                          score={horoscope.money_score ? horoscope.money_score * 10 : 0}
+                          score={horoscope.money_score || 0} // Use raw score (1-100)
                           label="Money"
                           icon={<DollarSign size={24} color="#2ECC71" />}
                           color="#2ECC71"
